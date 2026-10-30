@@ -24,8 +24,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/style.css?v=5">
-  <script src="js/main.js?v=5" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <script src="js/main.js?v=6" defer></script>
 </head>
 <body>
 
@@ -168,8 +168,13 @@
         </div>
 
         <div class="contact__card">
-          <!-- TODO: replace FORM_ENDPOINT_HERE with your form backend URL (e.g. https://formspree.io/f/xxxxxxx) -->
-          <form class="form" id="contact-form" action="FORM_ENDPOINT_HERE" method="POST" novalidate>
+          <!-- Submissions are emailed via FormSubmit (formsubmit.co). After activation you can
+               replace the email in the URL with the random alias FormSubmit sends you. -->
+          <form class="form" id="contact-form" action="https://formsubmit.co/ajax/vitenaxhori@yahoo.com" method="POST" novalidate>
+            <input type="hidden" name="_subject" value="New contact request – Higherd website">
+            <input type="hidden" name="_template" value="table">
+            <!-- Spam trap: real visitors never see or fill this -->
+            <input type="text" name="_honey" class="form__honey" tabindex="-1" autocomplete="off" aria-hidden="true">
             <p class="form__title">Get started</p>
 
             <div class="form__row">
