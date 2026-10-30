@@ -431,15 +431,6 @@ a {
   gap: 1.1rem;
 }
 
-/* Spam trap field for bots; kept off-screen for people */
-.form__honey {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
 .form__title {
   font-size: 0.9375rem;
   font-weight: 600;
