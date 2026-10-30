@@ -724,6 +724,7 @@ a {
 
   /* Socials + contact move to the top-right, aligned with the logo */
   .hero__actions {
+    grid-row: auto;   /* otherwise grid row 2 becomes its positioning box */
     position: absolute;
     top: 24px;
     right: var(--gutter);
