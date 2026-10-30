@@ -57,7 +57,8 @@ function showFieldError(field, message) {
 }
 
 if (form) {
-  const fields = [...form.querySelectorAll('input, select, textarea')];
+  // Only the visible required fields (skips the hidden FormSubmit settings and spam trap)
+  const fields = [...form.querySelectorAll('[required]')];
   const statusEl = form.querySelector('.form__status');
   const submitBtn = form.querySelector('button[type="submit"]');
   const successEl = form.parentElement.querySelector('.form__success');
