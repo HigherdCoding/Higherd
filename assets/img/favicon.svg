@@ -1,0 +1,7 @@
+<!-- PLACEHOLDER favicon – replace with the real Higherd mark -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <rect width="48" height="48" rx="10" fill="#5B21B6"/>
+  <path d="M14 20v10a10 10 0 0 0 20 0V20" fill="none" stroke="#FFFFFF" stroke-width="5"/>
+  <path d="M24 39V14" stroke="#FFFFFF" stroke-width="4"/>
+  <path d="M24 6l7 9H17z" fill="#FFFFFF"/>
+</svg>

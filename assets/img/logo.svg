@@ -1,0 +1,8 @@
+<!-- PLACEHOLDER logo – replace with the real Higherd logo file (keep the same filename) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 48" width="180" height="48" role="img" aria-label="Higherd">
+  <rect x="1" y="12" width="13" height="4" rx="1" fill="#F97316"/>
+  <path d="M8 16v14a12 12 0 0 0 24 0V16" fill="none" stroke="#5B21B6" stroke-width="6" stroke-linecap="square"/>
+  <path d="M20 40V9" stroke="#5B21B6" stroke-width="5"/>
+  <path d="M20 0l9 11H11z" fill="#5B21B6"/>
+  <text x="44" y="37" font-family="Inter, Arial, Helvetica, sans-serif" font-weight="700" font-size="26" fill="#5B21B6">HIGHERD</text>
+</svg>
