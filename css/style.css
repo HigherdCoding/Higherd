@@ -634,13 +634,6 @@ a {
   gap: 2.5rem;
 }
 
-/* Colored logo sits on a white badge so the purple stays readable on the dark footer */
-.footer__brand .logo {
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: var(--color-white);
-}
-
 .footer__brand .logo img {
   height: 44px;
 }
