@@ -204,8 +204,9 @@ a {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(26, 5, 51, 0.6),
-    transparent 20%,
+    rgba(26, 5, 51, 0.8),
+    rgba(26, 5, 51, 0.35) 12%,
+    transparent 24%,
     transparent 72%,
     rgba(26, 5, 51, 0.7)
   );
