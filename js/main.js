@@ -89,20 +89,26 @@ if (form) {
       return;
     }
 
-    if (form.getAttribute('action').includes('FORM_ENDPOINT_HERE')) {
-      statusEl.textContent = 'This form is not connected yet. Please try again later.';
-      console.warn('Contact form: set the form action to your form endpoint (see TODO in index.html).');
-      return;
-    }
-
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending…';
+
+    // Field names expected by the Power Automate lead flow
+    const value = (name) => form.elements[name].value.trim();
+    const lead = {
+      Name: value('name'),
+      Company: value('company'),
+      Email: value('email'),
+      Phone: value('phone'),
+      Role: value('role'),
+      Interest: value('requestType'),
+      More: value('message'),
+    };
 
     try {
       const response = await fetch(form.action, {
         method: 'POST',
-        body: new FormData(form),
-        headers: { Accept: 'application/json' },
+        body: JSON.stringify(lead),
+        headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 

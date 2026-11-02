@@ -168,8 +168,8 @@
         </div>
 
         <div class="contact__card">
-          <!-- TODO: replace FORM_ENDPOINT_HERE with your form service URL (e.g. Web3Forms or Formspree) -->
-          <form class="form" id="contact-form" action="FORM_ENDPOINT_HERE" method="POST" novalidate>
+          <!-- Submissions go to the Power Automate flow that creates leads in Dataverse (see js/main.js) -->
+          <form class="form" id="contact-form" action="https://385ea8a6ffffe512ac85c80a4fae45.57.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/14/workflows/dfe2e9429ea7454392817fc9f128d90c/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=K-pAIfadAdv733SdRgJgaCPsrMUJVd6QAwv980paERw" method="POST" novalidate>
             <p class="form__title">Get started</p>
 
             <div class="form__row">
