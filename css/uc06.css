@@ -347,6 +347,10 @@
   color: var(--color-text-muted);
 }
 
+.uc-section--tint .uc-note {
+  background: var(--color-white);
+}
+
 .uc-cta {
   color: var(--color-text);
   background: linear-gradient(180deg, var(--color-white), var(--color-bg-light));
