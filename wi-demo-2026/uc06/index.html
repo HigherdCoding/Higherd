@@ -249,6 +249,8 @@
             <button class="uc-tab" role="tab" id="impact-tab-1" aria-controls="impact-1" aria-selected="true">Candidate board</button>
             <button class="uc-tab" role="tab" id="impact-tab-2" aria-controls="impact-2" aria-selected="false" tabindex="-1">Choosing the scope</button>
             <button class="uc-tab" role="tab" id="impact-tab-3" aria-controls="impact-3" aria-selected="false" tabindex="-1">Job vs. candidate</button>
+            <button class="uc-tab" role="tab" id="impact-tab-4" aria-controls="impact-4" aria-selected="false" tabindex="-1">Work-package impact</button>
+            <button class="uc-tab" role="tab" id="impact-tab-5" aria-controls="impact-5" aria-selected="false" tabindex="-1">Matching report</button>
           </div>
 
           <div class="uc-panel" role="tabpanel" id="impact-1" aria-labelledby="impact-tab-1">
@@ -298,6 +300,40 @@
               <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
             </a>
           </div>
+
+          <div class="uc-panel" role="tabpanel" id="impact-4" aria-labelledby="impact-tab-4" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Candidates for WP-EL-042</h3>
+              <p class="uc-caption__role">HR Director</p>
+              <ul class="uc-points">
+                <li>Impact view: skills, WoW or both together</li>
+                <li>Each candidate shows overall, WoW and skills impact, plus the expected team WoW change</li>
+                <li>RK-113567: +1 FTE, 1 of 2 FTE (50%); RK-113568 conditional; RK-113569 not confirmed</li>
+                <li>No generic candidate match percentages; human review remains mandatory</li>
+              </ul>
+            </div>
+            <a class="uc-shot" href="/assets/img/uc06/11-board-work-package.webp" target="_blank" rel="noopener" aria-label="Open the work-package candidate board in full size (new tab)">
+              <img src="/assets/img/uc06/11-board-work-package.webp" alt="Candidates for WP-EL-042: three candidate cards with overall, WoW and skills impact and the expected team WoW change." width="2400" height="1406" loading="lazy" decoding="async">
+              <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
+            </a>
+          </div>
+
+          <div class="uc-panel" role="tabpanel" id="impact-5" aria-labelledby="impact-tab-5" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Matching &amp; impact report for RK-113567</h3>
+              <p class="uc-caption__role">HR Director</p>
+              <ul class="uc-points">
+                <li>Overall match 86% = 65% skills (95%) + 35% WoW evidence (68%)</li>
+                <li>Work-package evidence per requirement: verified, clarify or meets</li>
+                <li>Experience &amp; availability kept separate from generic CV matching</li>
+                <li>Work-package impact: +1 FTE, 4 weeks readiness, +6 / +5 EFF / AGL, −2 pts ESAT risk</li>
+              </ul>
+            </div>
+            <a class="uc-shot" href="/assets/img/uc06/12-matching-report.webp" target="_blank" rel="noopener" aria-label="Open the matching report in full size (new tab)">
+              <img src="/assets/img/uc06/12-matching-report.webp" alt="Matching and Impact report for RK-113567: 86% overall match, evidence and skills match table, experience and availability, expected Ways of Working impact and overall work-package impact." width="2400" height="1924" loading="lazy" decoding="async">
+              <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -313,19 +349,78 @@
           </div>
         </header>
 
-        <div class="uc-panel">
-          <div class="uc-caption">
-            <p class="uc-caption__role">HR Director</p>
-            <ul class="uc-points">
-              <li>Decision impact: Agility +16&nbsp;pp and Efficiency +14&nbsp;pp, both targets reached</li>
-              <li>Business impact: 28% capability coverage (120 / 430 FTE) and 4 weeks to readiness; cost and quality still to validate</li>
-              <li>Decision approval: HR Expert → HR Director → Operations Lead &amp; Finance Partner → Programme Sponsor</li>
-            </ul>
+        <div class="uc-tabs" data-tabs>
+          <div class="uc-tabs__list" role="tablist" aria-label="Decision impact screens">
+            <button class="uc-tab" role="tab" id="decision-tab-1" aria-controls="decision-1" aria-selected="true">Agility + Efficiency</button>
+            <button class="uc-tab" role="tab" id="decision-tab-2" aria-controls="decision-2" aria-selected="false" tabindex="-1">Agility</button>
+            <button class="uc-tab" role="tab" id="decision-tab-3" aria-controls="decision-3" aria-selected="false" tabindex="-1">L&amp;D + Agility</button>
+            <button class="uc-tab" role="tab" id="decision-tab-4" aria-controls="decision-4" aria-selected="false" tabindex="-1">All six</button>
           </div>
-          <a class="uc-shot" href="/assets/img/uc06/10-decision-impact.webp" target="_blank" rel="noopener" aria-label="Open the Decision impact screen in full size (new tab)">
-            <img src="/assets/img/uc06/10-decision-impact.webp" alt="Decision WM-204981, Move 120 specialists: Agility +16 pp and Efficiency +14 pp gauges, work type selection, business impact cards and the decision approval chain." width="2400" height="1670" loading="lazy" decoding="async">
-            <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-          </a>
+
+          <div class="uc-panel" role="tabpanel" id="decision-1" aria-labelledby="decision-tab-1">
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Decision impact &amp; approval</h3>
+              <p class="uc-caption__role">HR Director</p>
+              <ul class="uc-points">
+                <li>Decision impact: Agility +16&nbsp;pp and Efficiency +14&nbsp;pp, both targets reached</li>
+                <li>Business impact: 28% capability coverage (120 / 430 FTE) and 4 weeks to readiness; cost and quality still to validate</li>
+                <li>Decision approval: HR Expert → HR Director → Operations Lead &amp; Finance Partner → Programme Sponsor</li>
+              </ul>
+            </div>
+            <a class="uc-shot" href="/assets/img/uc06/10-decision-impact.webp" target="_blank" rel="noopener" aria-label="Open the Decision impact screen in full size (new tab)">
+              <img src="/assets/img/uc06/10-decision-impact.webp" alt="Decision WM-204981, Move 120 specialists: Agility +16 pp and Efficiency +14 pp gauges, work type selection, business impact cards and the decision approval chain." width="2400" height="1670" loading="lazy" decoding="async">
+              <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
+            </a>
+          </div>
+
+          <div class="uc-panel" role="tabpanel" id="decision-2" aria-labelledby="decision-tab-2" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Workforce decision: Agility</h3>
+              <p class="uc-caption__role">HR Director</p>
+              <ul class="uc-points">
+                <li>Redeploy 120 internal specialists: protect critical engineering delivery while closing capability gaps</li>
+                <li>120 FTE proposed redeployment, 430 FTE capability gap, 28% potential coverage, $2.1M programme opportunity</li>
+                <li>Agility selected: 58 → 74, target 74, +16&nbsp;pp expected</li>
+                <li>Time, cost, quality and lessons learned, then the approval workflow</li>
+              </ul>
+            </div>
+            <a class="uc-shot" href="/assets/img/uc06/13-decision-agility.webp" target="_blank" rel="noopener" aria-label="Open the Workforce Decision, Agility screen in full size (new tab)">
+              <img src="/assets/img/uc06/13-decision-agility.webp" alt="Workforce Decision WM-204981, Redeploy 120 internal specialists: key figures, decision impact with Agility selected (+16 pp), time to readiness and the approval workflow." width="2400" height="2588" loading="lazy" decoding="async">
+              <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
+            </a>
+          </div>
+
+          <div class="uc-panel" role="tabpanel" id="decision-3" aria-labelledby="decision-tab-3" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Workforce decision: L&amp;D + Agility</h3>
+              <p class="uc-caption__role">HR Director</p>
+              <ul class="uc-points">
+                <li>Two dimensions selected: +12&nbsp;pp expected, 67/100 modeled organizational position</li>
+                <li>L&amp;D: 52 → 60, target 70, +8&nbsp;pp</li>
+                <li>Agility: 58 → 74, target 74, +16&nbsp;pp</li>
+              </ul>
+            </div>
+            <a class="uc-shot" href="/assets/img/uc06/14-decision-ld-agility.webp" target="_blank" rel="noopener" aria-label="Open the Workforce Decision, L&amp;D and Agility screen in full size (new tab)">
+              <img src="/assets/img/uc06/14-decision-ld-agility.webp" alt="Workforce Decision with L&amp;D and Agility selected: +12 pp expected, 67 out of 100." width="2400" height="2588" loading="lazy" decoding="async">
+              <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
+            </a>
+          </div>
+
+          <div class="uc-panel" role="tabpanel" id="decision-4" aria-labelledby="decision-tab-4" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Workforce decision: all six dimensions</h3>
+              <p class="uc-caption__role">HR Director</p>
+              <ul class="uc-points">
+                <li>All six dimensions selected: +7.3&nbsp;pp expected, 59.3/100 modeled organizational position</li>
+                <li>Agility +16, Efficiency +14, L&amp;D +8, ESAT +6, D&amp;I +0, ESG +0&nbsp;pp</li>
+                <li>Equal-weight aggregate: 52 → 59.3, target 66.3</li>
+              </ul>
+            </div>
+            <a class="uc-shot" href="/assets/img/uc06/15-decision-all-six.webp" target="_blank" rel="noopener" aria-label="Open the Workforce Decision, all six dimensions screen in full size (new tab)">
+              <img src="/assets/img/uc06/15-decision-all-six.webp" alt="Workforce Decision with all six WoW dimensions selected: +7.3 pp expected, 59.3 out of 100, with current, modeled and target values per dimension." width="2400" height="2588" loading="lazy" decoding="async">
+              <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
+            </a>
+          </div>
         </div>
 
         <p class="uc-note">An illustrative planning scenario, not real candidates or measured outcomes. Targets and weights need calibration with each customer.</p>
