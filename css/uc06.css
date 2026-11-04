@@ -1,5 +1,5 @@
 /* =========================================================
-   Higherd – UC06 demo page (/wi-demo-2026/uc06/)
+   Higherd – UC06 use case page (/wi-demo-2026)
    Builds on style.css (tokens, reset, .intro, .btn, .footer)
    ========================================================= */
 
@@ -35,30 +35,6 @@
 
 .uc-bar .logo img {
   height: 38px;
-}
-
-.uc-bar__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: var(--tap);
-  padding: 0 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: var(--radius-pill);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color var(--transition), color var(--transition);
-}
-
-.uc-bar__back svg {
-  width: 18px;
-  height: 18px;
-}
-
-.uc-bar__back:hover {
-  background: var(--color-white);
-  color: var(--color-logo);
 }
 
 /* ---------- Intro ---------- */
@@ -337,7 +313,7 @@
   visibility: hidden;
 }
 
-/* ---------- Note + CTA ---------- */
+/* ---------- Note ---------- */
 .uc-note {
   margin-top: 2rem;
   padding: 14px 16px;
@@ -349,38 +325,6 @@
 
 .uc-section--tint .uc-note {
   background: var(--color-white);
-}
-
-.uc-cta {
-  color: var(--color-text);
-  background: linear-gradient(180deg, var(--color-white), var(--color-bg-light));
-}
-
-.uc-cta__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  max-width: var(--content-max);
-  margin: 0 auto;
-  padding: 3.5rem var(--gutter) 4rem;
-}
-
-.uc-cta__title {
-  font-size: clamp(1.5rem, 1.5vw + 1rem, 2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-/* Footer: only the bottom bar is used here */
-.uc .footer__inner {
-  padding-top: 0.5rem;
-}
-
-.uc .footer__bottom {
-  margin-top: 0;
-  border-top: 0;
 }
 
 /* ---------- Breakpoints ---------- */
@@ -434,8 +378,7 @@
 @media (min-width: 1296px) {
   .uc-bar__inner,
   .uc-facts,
-  .uc-section__inner,
-  .uc-cta__inner {
+  .uc-section__inner {
     padding-left: 0;
     padding-right: 0;
   }
