@@ -53,6 +53,7 @@
 /* Jumps and step changes land below the sticky header */
 .uc-tabs,
 #journey,
+#work-pillar-impact,
 #contact {
   scroll-margin-top: 76px;
 }
@@ -583,6 +584,7 @@
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-white);
+  text-decoration: none;
   cursor: pointer;
   transition: background-color var(--transition), border-color var(--transition);
 }
@@ -607,6 +609,10 @@
 
 .uc-step-btn[disabled] {
   visibility: hidden;
+}
+
+.uc-step-btn[hidden] {
+  display: none;
 }
 
 /* ---------- How to read the numbers ---------- */

@@ -13,7 +13,7 @@
   <meta property="og:site_name" content="Higherd">
   <meta property="og:title" content="UC06 – Engineering Recruiting &amp; WoW Matching">
   <meta property="og:description" content="From work-package requirement to an evidence-based hiring decision, with skills and Ways of Working impact.">
-  <meta property="og:image" content="https://hi-gherd.com/assets/img/uc06/09-job-vs-candidate.webp">
+  <meta property="og:image" content="https://hi-gherd.com/assets/img/uc06/10-decision-impact.webp">
   <meta property="og:url" content="https://hi-gherd.com/wi-demo-2026">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -26,9 +26,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/css/style.css?v=11">
-  <link rel="stylesheet" href="/css/uc06.css?v=5">
+  <link rel="stylesheet" href="/css/uc06.css?v=6">
   <script src="/js/main.js?v=9" defer></script>
-  <script src="/js/uc06.js?v=1" defer></script>
+  <script src="/js/uc06.js?v=2" defer></script>
 </head>
 <body class="uc">
 
@@ -219,8 +219,8 @@
     <!-- ============ JOURNEY ============ -->
     <section class="uc-band" id="journey" aria-labelledby="journey-title">
       <div class="uc-center">
-        <h2 id="journey-title" class="uc-title">The hiring journey in six steps</h2>
-        <p class="uc-copy">One work package, followed from demand to a human decision. Each step has a clear owner.</p>
+        <h2 id="journey-title" class="uc-title">The hiring journey in four steps</h2>
+        <p class="uc-copy">One work package, followed from demand to a shortlist. Each step has a clear owner.</p>
       </div>
       <div class="uc-screens">
         <div class="uc-tabs" data-tabs>
@@ -229,8 +229,6 @@
             <button class="uc-tab" role="tab" id="flow-tab-2" aria-controls="flow-2" aria-selected="false" tabindex="-1"><span>02</span>Identify gap</button>
             <button class="uc-tab" role="tab" id="flow-tab-3" aria-controls="flow-3" aria-selected="false" tabindex="-1"><span>03</span>Discover talent</button>
             <button class="uc-tab" role="tab" id="flow-tab-4" aria-controls="flow-4" aria-selected="false" tabindex="-1"><span>04</span>Assess &amp; compare</button>
-            <button class="uc-tab" role="tab" id="flow-tab-5" aria-controls="flow-5" aria-selected="false" tabindex="-1"><span>05</span>Model impact</button>
-            <button class="uc-tab" role="tab" id="flow-tab-6" aria-controls="flow-6" aria-selected="false" tabindex="-1"><span>06</span>Approve</button>
           </div>
 
           <div class="uc-panel" role="tabpanel" id="flow-1" aria-labelledby="flow-tab-1">
@@ -309,42 +307,6 @@
             </div>
           </div>
 
-          <div class="uc-panel" role="tabpanel" id="flow-5" aria-labelledby="flow-tab-5" hidden>
-            <div class="uc-caption">
-              <h3 class="uc-caption__title">Model the impact: +14% overall</h3>
-              <p class="uc-caption__role">Engineering Manager</p>
-              <ul class="uc-points">
-                <li>Overall impact = 50% skills gap closure (+15%) + 50% WoW gap closure (+13%)</li>
-                <li>10 of 12 job requirements covered, with the 2 gaps flagged</li>
-                <li>Expected change per WoW dimension against the team&#39;s targets</li>
-              </ul>
-            </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/09-job-vs-candidate.webp" target="_blank" rel="noopener" aria-label="Open the Job vs Candidate screen in full size (new tab)">
-                <img src="/assets/img/uc06/09-job-vs-candidate.webp" alt="Job vs Candidate normalized impact for RK-113567: +14% overall, +15% skills gap and +13% WoW gap impact, a skills coverage table and expected WoW changes." width="2400" height="1750" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="uc-panel" role="tabpanel" id="flow-6" aria-labelledby="flow-tab-6" hidden>
-            <div class="uc-caption">
-              <h3 class="uc-caption__title">Approve the hire</h3>
-              <p class="uc-caption__role">Hiring decision-maker</p>
-              <ul class="uc-points">
-                <li>Qualification, availability, WoW contribution and open evidence in one review</li>
-                <li>Decision owner and rationale recorded for review</li>
-                <li>No automatic hire: final authorization belongs to the client</li>
-              </ul>
-            </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/06-decision.webp" target="_blank" rel="noopener" aria-label="Open the hiring decision screen in full size (new tab)">
-                <img src="/assets/img/uc06/06-decision.webp" alt="Authorized Hiring Decision: hiring review of RK-113567 with decision conditions and audit trail." width="2400" height="1985" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
-          </div>
-
           <div class="uc-tabs__nav">
             <button class="uc-step-btn" type="button" data-step="-1">
               <svg aria-hidden="true" focusable="false"><use href="#icon-arrow-left"/></svg>Previous
@@ -352,35 +314,23 @@
             <button class="uc-step-btn uc-step-btn--next" type="button" data-step="1">
               Next step<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
             </button>
+            <a class="uc-step-btn uc-step-btn--next" href="#work-pillar-impact" data-step-end hidden>
+              Next: Work Pillar Impact<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
+            </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ NUMBERS ============ -->
-    <section class="uc-section uc-section--soft" aria-labelledby="numbers-title">
+    <!-- ============ WORK PILLAR IMPACT ============ -->
+    <section class="uc-band" id="work-pillar-impact" aria-labelledby="scenario-title">
       <div class="uc-center">
-        <h2 id="numbers-title" class="uc-title">How to read the numbers</h2>
-        <p class="uc-copy">Each figure measures something different.</p>
-      </div>
-      <div class="uc-numbers uc-screens">
-        <div class="uc-number"><strong>+15%</strong><h3>Skills gap closure</h3><p>Share of the skills gap this hire closes: modeled 60 → 63 against a target of 80.</p></div>
-        <div class="uc-number"><strong>+13%</strong><h3>WoW gap closure</h3><p>Share of the gap to the team&#39;s targets closed across the six Ways of Working dimensions.</p></div>
-        <div class="uc-number"><strong>+14%</strong><h3>Overall impact</h3><p>The two figures above with equal weighting: 50% skills, 50% WoW.</p></div>
-        <div class="uc-number"><strong>28%</strong><h3>Capability coverage</h3><p>120 of 430 FTE, gross. A programme figure from the scenario below, not a candidate score.</p></div>
-      </div>
-    </section>
-
-    <!-- ============ PROGRAMME SCENARIO ============ -->
-    <section class="uc-band" aria-labelledby="scenario-title">
-      <div class="uc-center">
-        <p class="uc-eyebrow">A separate scenario</p>
-        <h2 id="scenario-title" class="uc-title">Beyond one hire: Move 120 specialists. Close critical gaps.</h2>
-        <p class="uc-copy">The journey above fills 2 FTE in one work package. This is a different decision, at programme level: Converter Delivery, 12 months, a 430 FTE capability gap. Choose which Ways of Working dimensions to view.</p>
+        <h2 id="scenario-title" class="uc-title">Choose Work Pillar Impact</h2>
+        <p class="uc-copy">Move 120 specialists. Close critical gaps. A programme-level decision for Converter Delivery: 12 months, a 430 FTE capability gap.</p>
       </div>
       <div class="uc-screens">
         <div class="uc-tabs" data-tabs>
-          <div class="uc-tabs__list" role="tablist" aria-label="Selected dimensions">
+          <div class="uc-tabs__list" role="tablist" aria-label="Work pillars">
             <button class="uc-tab" role="tab" id="scenario-tab-1" aria-controls="scenario-1" aria-selected="true">Agility + Efficiency</button>
             <button class="uc-tab" role="tab" id="scenario-tab-2" aria-controls="scenario-2" aria-selected="false" tabindex="-1">Agility only</button>
             <button class="uc-tab" role="tab" id="scenario-tab-3" aria-controls="scenario-3" aria-selected="false" tabindex="-1">L&amp;D + Agility</button>
@@ -459,6 +409,20 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ NUMBERS ============ -->
+    <section class="uc-section uc-section--soft" aria-labelledby="numbers-title">
+      <div class="uc-center">
+        <h2 id="numbers-title" class="uc-title">How to read the numbers</h2>
+        <p class="uc-copy">Each figure measures something different.</p>
+      </div>
+      <div class="uc-numbers uc-screens">
+        <div class="uc-number"><strong>+15%</strong><h3>Skills gap closure</h3><p>Share of the skills gap this hire closes: modeled 60 → 63 against a target of 80.</p></div>
+        <div class="uc-number"><strong>+13%</strong><h3>WoW gap closure</h3><p>Share of the gap to the team&#39;s targets closed across the six Ways of Working dimensions.</p></div>
+        <div class="uc-number"><strong>+14%</strong><h3>Overall impact</h3><p>The overall figure on the candidate board: the two figures here with equal weighting, 50% skills and 50% WoW.</p></div>
+        <div class="uc-number"><strong>28%</strong><h3>Capability coverage</h3><p>120 of 430 FTE, gross. A programme figure, not a candidate score.</p></div>
       </div>
     </section>
 

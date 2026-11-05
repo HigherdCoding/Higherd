@@ -7,6 +7,7 @@
     var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
     var prev = root.querySelector('[data-step="-1"]');
     var next = root.querySelector('[data-step="1"]');
+    var end = root.querySelector('[data-step-end]');
     var current = 0;
 
     function select(index, focus) {
@@ -20,7 +21,9 @@
       if (focus) tabs[index].focus();
       tabs[index].scrollIntoView({ block: 'nearest', inline: 'nearest' });
       if (prev) prev.disabled = index === 0;
-      if (next) next.disabled = index === tabs.length - 1;
+      // Last step: swap Next for the link to the following section
+      if (next) next.hidden = index === tabs.length - 1;
+      if (end) end.hidden = index !== tabs.length - 1;
     }
 
     tabs.forEach(function (tab, i) {
