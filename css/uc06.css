@@ -757,6 +757,7 @@
 .uc-more__link {
   display: inline-flex;
   align-items: center;
+  gap: 0.5rem;
   width: fit-content;
   min-height: var(--tap);
   margin-top: 2rem;
@@ -768,6 +769,11 @@
   color: #4602AA;
   text-decoration: none;
   transition: background-color var(--transition);
+}
+
+.uc-more__link svg {
+  width: 18px;
+  height: 18px;
 }
 
 .uc-more__link:hover {
