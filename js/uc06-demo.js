@@ -144,26 +144,24 @@
   }
 
   var HINTS = {
-    1: 'Change the required FTE, add a competency, or drag a target marker on the Ways of Working bars.',
-    2: 'Use − and + to set the internal FTE you can confirm. The gap below updates.',
-    3: 'Search by skill, switch the impact view, open a profile, and add candidates to the shortlist.',
-    4: 'Tick or untick the Work Pillars on the right, then approve the decision step by step.',
-    5: 'Pick a candidate and a document, switch to Deutsch, or change the rate. The preview updates as you type.'
+    1: 'Change the FTE or drag a target on the bars.',
+    2: 'Use + and − to set the capacity you already have.',
+    3: 'Shortlist candidates or open a profile.',
+    4: 'Tick the Work Pillars you care about.',
+    5: 'Switch the document or the language.'
   };
 
   function chrome(step, title, role) {
     return '' +
       '<div class="hd-chrome">' +
         '<span class="hd-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
-        '<span class="hd-chrome__title">Higherd · Workforce Intelligence</span>' +
-        '<span class="hd-chrome__tag" data-saved>' + savedLabel() + '</span>' +
+        '<span class="hd-chrome__title">Higherd</span>' +
         '<button type="button" class="hd-link" data-act="reset">Reset demo</button>' +
       '</div>' +
       '<div class="hd-head">' +
-        '<div><p class="hd-head__title">' + title + '</p><p class="hd-head__role">' + role + '</p></div>' +
-        '<span class="hd-pill">UC06 · ' + step + '/5</span>' +
+        '<p class="hd-head__title">' + title + '</p>' +
       '</div>' +
-      '<p class="hd-try"><b>Try it</b>' + HINTS[step] + '</p>';
+      '<p class="hd-try"><b>Try it:</b> ' + HINTS[step] + '</p>';
   }
 
   function wpBar() {
@@ -171,7 +169,7 @@
       '<div class="hd-wp">' +
         '<p class="hd-eyebrow">Work package · WP-EL-042</p>' +
         '<p class="hd-wp__name">Converter Delivery / Electrical Engineering / Protection Engineer</p>' +
-        '<p class="hd-wp__meta">' + fteTxt(S.fte) + ' · Ready within ' + S.weeks + ' weeks · Engineering Manager · SAP integration proposed</p>' +
+        '<p class="hd-wp__meta">' + fteTxt(S.fte) + ' · ready within ' + S.weeks + ' weeks</p>' +
       '</div>';
   }
 
@@ -181,52 +179,35 @@
   function render1() {
     var el = $('#hd-1'); if (!el) return;
     el.innerHTML =
-      chrome(1, 'Define Engineering Requirement', 'Engineering Manager · Job creation with work-package context') +
+      chrome(1, 'Define the requirement') +
       wpBar() +
       '<div class="hd-cols">' +
         '<section class="hd-card">' +
-          '<p class="hd-card__title">Work Package &amp; Role Requirements</p>' +
+          '<p class="hd-card__title">Role</p>' +
           '<div class="hd-fields">' +
-            '<div class="hd-field hd-field--ro"><span>Work Package</span><strong>WP-EL-042</strong></div>' +
-            '<div class="hd-field hd-field--ro"><span>Project</span><strong>Converter Delivery</strong></div>' +
-            '<div class="hd-field hd-field--ro"><span>Role</span><strong>Protection Engineer</strong></div>' +
             '<div class="hd-field"><label for="hd-fte">Required FTE</label>' +
               '<div class="hd-stepper"><button type="button" data-act="fte" data-d="-0.5" aria-label="Less FTE">−</button>' +
               '<input id="hd-fte" type="text" inputmode="decimal" value="' + S.fte + '" readonly>' +
               '<button type="button" data-act="fte" data-d="0.5" aria-label="More FTE">+</button></div></div>' +
-            '<div class="hd-field"><label for="hd-weeks">Availability</label>' +
+            '<div class="hd-field"><label for="hd-weeks">Ready within</label>' +
               '<select id="hd-weeks" data-in="weeks">' +
-                [2, 4, 6, 8, 12].map(function (w) { return '<option value="' + w + '"' + (w == S.weeks ? ' selected' : '') + '>Within ' + w + ' weeks</option>'; }).join('') +
-              '</select></div>' +
-            '<div class="hd-field"><label for="hd-route">Hiring route</label>' +
-              '<select id="hd-route" data-in="route">' +
-                ['Internal or external', 'Internal mobility', 'External hire', 'Temporary contracting'].map(function (r) { return '<option' + (r === S.route ? ' selected' : '') + '>' + r + '</option>'; }).join('') +
+                [4, 8, 12].map(function (w) { return '<option value="' + w + '"' + (w == S.weeks ? ' selected' : '') + '>' + w + ' weeks</option>'; }).join('') +
               '</select></div>' +
           '</div>' +
-          '<p class="hd-sub">Work Package Responsibilities</p>' +
-          '<ul class="hd-bullets">' +
-            '<li>Protection studies and relay coordination</li>' +
-            '<li>Interface management with HV design and commissioning</li>' +
-            '<li>Testing evidence, validation and handover</li>' +
-          '</ul>' +
-          '<p class="hd-sub">Essential Competencies</p>' +
+          '<p class="hd-sub">Competencies</p>' +
           '<div class="hd-chips">' +
             S.comps.map(function (c, i) {
               return '<span class="hd-chip">' + esc(c) + '<button type="button" data-act="rmcomp" data-i="' + i + '" aria-label="Remove ' + esc(c) + '">×</button></span>';
             }).join('') +
           '</div>' +
           '<form class="hd-add" data-form="comp"><label class="hd-sr" for="hd-comp">Add competency</label>' +
-            '<input id="hd-comp" type="text" placeholder="Add a competency, e.g. IEC 61850" maxlength="40">' +
+            '<input id="hd-comp" type="text" placeholder="Add a competency" maxlength="40">' +
             '<button type="submit" class="hd-btn hd-btn--ghost">Add</button></form>' +
-          '<p class="hd-evidence">Qualification evidence · Experience · Competence · Availability · Candidate consent</p>' +
-          '<div class="hd-actions"><button type="button" class="hd-btn" data-go="2">Identify Workforce Gap →</button></div>' +
         '</section>' +
         '<section class="hd-card">' +
-          '<p class="hd-card__title">Team WoW Baseline</p>' +
-          '<p class="hd-muted">Current vs. target Ways of Working. Drag to set the team target.</p>' +
+          '<p class="hd-card__title">Team targets</p>' +
+          '<p class="hd-muted">Ways of Working: current → target</p>' +
           '<div class="hd-wow" id="hd-wow1">' + wowRows(true) + '</div>' +
-          '<div class="hd-note"><strong>WoW need recorded for this team</strong>Improve technical handovers, decision speed and cross-discipline efficiency.</div>' +
-          '<dl class="hd-kv"><div><dt>SAP integration</dt><dd class="hd-accent">Proposed / to be defined</dd></div><div><dt>Requirement owner</dt><dd>Engineering Manager</dd></div></dl>' +
         '</section>' +
       '</div>';
   }
@@ -258,49 +239,43 @@
       if (g > maxGap) { maxGap = g; maxCap = c; }
     });
     var gaps = WOW.map(function (d) { return { d: d, g: S.wow[d.k][1] - S.wow[d.k][0] }; })
-      .sort(function (a, b) { return b.g - a.g; });
+      .sort(function (a, b) { return b.g - a.g; }).slice(0, 3);
+    var n = function (x) { return x % 1 ? x.toFixed(1) : x; };
 
     el.innerHTML =
-      chrome(2, 'Identify the Capability &amp; WoW Gap', 'Engineering Manager + Recruiter · Demand vs. verified availability') +
-      wpBar() +
+      chrome(2, 'Identify the gap') +
       '<div class="hd-cols">' +
         '<section class="hd-card">' +
-          '<p class="hd-card__title">Required vs. Available Capacity</p>' +
-          '<p class="hd-muted">Set the internal FTE you can confirm for each capability.</p>' +
+          '<p class="hd-card__title">Capacity you already have</p>' +
+          '<p class="hd-muted">Out of ' + fteTxt(S.fte) + ' needed per capability</p>' +
           CAPS.map(function (c) {
             var a = Math.min(S.avail[c.k], S.fte);
-            var note = a === 0 ? 'No confirmed internal specialist' : a < S.fte ? 'Partial internal capacity evidenced' : 'Covered internally';
             return '' +
               '<div class="hd-cap">' +
                 '<div class="hd-cap__top"><span class="hd-cap__name">' + c.l + '</span>' +
                   '<span class="hd-stepper hd-stepper--sm">' +
                     '<button type="button" data-act="avail" data-k="' + c.k + '" data-d="-0.5" aria-label="Less available for ' + c.l + '">−</button>' +
-                    '<output>' + (a % 1 ? a.toFixed(1) : a) + ' / ' + fteTxt(S.fte) + '</output>' +
+                    '<output class="' + (a === 0 ? 'is-bad' : a >= S.fte ? 'is-good' : '') + '">' + n(a) + ' / ' + n(S.fte) + '</output>' +
                     '<button type="button" data-act="avail" data-k="' + c.k + '" data-d="0.5" aria-label="More available for ' + c.l + '">+</button>' +
                   '</span></div>' +
                 '<span class="hd-bar"><i style="width:' + (S.fte ? a / S.fte * 100 : 0) + '%"></i></span>' +
-                '<p class="hd-cap__note' + (a === 0 ? ' is-bad' : a >= S.fte ? ' is-good' : '') + '">' + note + '</p>' +
               '</div>';
           }).join('') +
-          '<div class="hd-summary">' +
-            (maxGap > 0
-              ? '<strong>' + fteTxt(maxGap) + ' ' + maxCap.l.toLowerCase() + ' gap · ' + S.weeks + '-week requirement</strong><span>Review internal mobility, external candidates or temporary specialist contracting.</span>'
-              : '<strong>No capability gap</strong><span>Internal capacity covers the work package. You can still compare candidates for resilience.</span>') +
-          '</div>' +
-          '<div class="hd-actions"><button type="button" class="hd-btn" data-go="3">Find Specialists →</button></div>' +
         '</section>' +
         '<section class="hd-card">' +
-          '<p class="hd-card__title">Team Ways of Working (WoW)</p>' +
-          '<p class="hd-muted">Gap to target per dimension, set in step 01.</p>' +
+          '<p class="hd-card__title">The gap</p>' +
+          '<div class="hd-summary' + (maxGap > 0 ? '' : ' is-good') + '">' +
+            (maxGap > 0
+              ? '<strong>' + fteTxt(maxGap) + ' missing</strong><span>' + maxCap.l + ', needed within ' + S.weeks + ' weeks</span>'
+              : '<strong>No gap</strong><span>The team covers the work package.</span>') +
+          '</div>' +
+          '<p class="hd-sub">Biggest Ways of Working gaps</p>' +
           '<div class="hd-gaps">' +
-            gaps.map(function (x, i) {
-              return '<div class="hd-gaprow' + (i < 2 && x.g > 0 ? ' is-top' : '') + '"><span class="hd-dot" style="background:' + x.d.c + '"></span>' +
+            gaps.map(function (x) {
+              return '<div class="hd-gaprow"><span class="hd-dot" style="background:' + x.d.c + '"></span>' +
                 '<span>' + WOW_NAME[x.d.k] + '</span><b>' + signed(x.g, ' pp') + '</b></div>';
             }).join('') +
           '</div>' +
-          '<div class="hd-note"><strong>Organizational, not individual scoring</strong>' +
-            WOW_NAME[gaps[0].d.k] + ' and ' + WOW_NAME[gaps[1].d.k].toLowerCase() + ' are furthest below the team targets; these needs inform evidence-based assessments.</div>' +
-          '<dl class="hd-kv"><div><dt>Capability gap</dt><dd class="hd-accent">' + (maxGap > 0 ? maxCap.l : 'None') + '</dd></div><div><dt>WoW / ownership gap</dt><dd class="hd-accent">Technical interfaces</dd></div></dl>' +
         '</section>' +
       '</div>';
   }
@@ -311,22 +286,16 @@
   function render3() {
     var el = $('#hd-3'); if (!el) return;
     el.innerHTML =
-      chrome(3, 'Candidates · Protection &amp; Control Commissioning Engineer', 'Recruiter · Six candidates, anonymized IDs') +
+      chrome(3, 'Find candidates') +
       '<div class="hd-toolbar">' +
         '<label class="hd-search"><span class="hd-sr">Search candidates</span>' +
           '<input type="search" id="hd-q" placeholder="Search by skill, e.g. SCADA" value="' + esc(S.q) + '"></label>' +
         '<div class="hd-seg" role="group" aria-label="Impact view">' +
-          [['overall', 'Overall'], ['wow', 'WoW'], ['skill', 'Skills gap']].map(function (v) {
+          [['overall', 'Overall'], ['wow', 'Team fit'], ['skill', 'Skills']].map(function (v) {
             return '<button type="button" data-act="view" data-v="' + v[0] + '" aria-pressed="' + (S.view === v[0]) + '">' + v[1] + '</button>';
           }).join('') +
         '</div>' +
-        '<label class="hd-sort"><span>Sort</span><select data-in="sort">' +
-          [['impact', 'Impact'], ['yrs', 'Experience'], ['weeks', 'Availability']].map(function (v) {
-            return '<option value="' + v[0] + '"' + (S.sort === v[0] ? ' selected' : '') + '>' + v[1] + '</option>';
-          }).join('') +
-        '</select></label>' +
       '</div>' +
-      '<div class="hd-scope"><span class="hd-eyebrow">Scope</span> Work Package · WP-EL-042 <span class="hd-muted">· ' + fteTxt(S.fte) + ' needed</span></div>' +
       '<div id="hd-board"></div>' +
       '<div class="hd-shortbar" id="hd-shortbar"></div>';
     renderBoard();
@@ -339,31 +308,23 @@
     var q = S.q.trim().toLowerCase();
     var list = CANDS.filter(function (c) {
       return !q || (c.id + ' ' + c.sum + ' ' + c.skills.join(' ')).toLowerCase().indexOf(q) !== -1;
-    }).sort(function (a, b) {
-      if (S.sort === 'yrs') return b.yrs - a.yrs;
-      if (S.sort === 'weeks') return a.weeks - b.weeks;
-      return impactOf(b) - impactOf(a);
-    });
-    var label = { overall: 'Overall impact', wow: 'WoW impact', skill: 'Skills gap impact' }[S.view];
+    }).sort(function (a, b) { return impactOf(b) - impactOf(a); });
+    var label = { overall: 'impact', wow: 'team fit', skill: 'skills' }[S.view];
 
     box.innerHTML = list.length ? '<div class="hd-board">' + list.map(function (c) {
       var v = impactOf(c), on = S.shortlist.indexOf(c.id) !== -1;
-      var extra = c.skills.length - 5;
+      var extra = c.skills.length - 3;
       return '' +
         '<article class="hd-cand' + (on ? ' is-on' : '') + '">' +
           '<div class="hd-cand__top">' +
-            '<span class="hd-avatar" aria-hidden="true">' + icon('icon-users') + '</span>' +
+            '<div><p class="hd-cand__id">' + c.id + (c.star ? ' <span class="hd-star" title="Top match">★</span>' : '') + '</p>' +
+            '<p class="hd-cand__role">' + c.yrs + ' years · covers ' + fteTxt(c.fte) + '</p></div>' +
             '<span class="hd-impact ' + (v >= 0 ? 'is-up' : 'is-down') + '"><b>' + signed(v, '%') + '</b><small>' + label + '</small></span>' +
           '</div>' +
-          '<p class="hd-cand__id">' + c.id + (c.star ? ' <span class="hd-star" title="Top match">★</span>' : '') + '</p>' +
-          '<p class="hd-cand__role">P&amp;C Commissioning Engineer · ' + c.yrs + ' years</p>' +
-          '<p class="hd-cand__sum">' + c.sum + '</p>' +
-          '<div class="hd-tags">' + c.skills.slice(0, 5).map(function (s) { return '<span>' + s + '</span>'; }).join('') + (extra > 0 ? '<span>+' + extra + '</span>' : '') + '</div>' +
-          '<div class="hd-norm"><p class="hd-eyebrow">Normalized impact · Demo</p>' +
-            '<p><b>+' + c.fte + ' FTE' + (c.fte < 1 ? '*' : '') + '</b><span>' + c.wd + '</span></p><small>' + c.note + '</small></div>' +
+          '<div class="hd-tags">' + c.skills.slice(0, 3).map(function (s) { return '<span>' + s + '</span>'; }).join('') + (extra > 0 ? '<span>+' + extra + '</span>' : '') + '</div>' +
           '<div class="hd-cand__btns">' +
-            '<button type="button" class="hd-btn hd-btn--ghost" data-act="profile" data-id="' + c.id + '">View Profile</button>' +
-            '<button type="button" class="hd-btn' + (on ? ' hd-btn--done' : '') + '" data-act="short" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '✓ Shortlisted' : 'Add to Shortlist') + '</button>' +
+            '<button type="button" class="hd-btn hd-btn--ghost" data-act="profile" data-id="' + c.id + '">Profile</button>' +
+            '<button type="button" class="hd-btn' + (on ? ' hd-btn--done' : '') + '" data-act="short" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '✓ Shortlisted' : 'Shortlist') + '</button>' +
           '</div>' +
         '</article>';
     }).join('') + '</div>' : '<p class="hd-empty">No candidate matches “' + esc(S.q) + '”.</p>';
@@ -376,10 +337,8 @@
     S.shortlist.forEach(function (id) { cover += cand(id).fte; });
     var pct = S.fte ? Math.min(100, cover / S.fte * 100) : 100;
     bar.innerHTML =
-      '<div><p><b>Shortlist: ' + S.shortlist.length + ' candidate' + (S.shortlist.length === 1 ? '' : 's') + '</b> · covers ' + (cover % 1 ? cover.toFixed(1) : cover) + ' of ' + fteTxt(S.fte) + '</p>' +
-      '<span class="hd-bar"><i style="width:' + pct + '%"></i></span></div>' +
-      '<div class="hd-shortbar__btns"><button type="button" class="hd-btn hd-btn--ghost" data-go="5"' + (S.shortlist.length ? '' : ' disabled') + '>Create documents</button>' +
-      '<button type="button" class="hd-btn" data-go="4">Model Work Pillar Impact →</button></div>';
+      '<div><p><b>Shortlist covers ' + (cover % 1 ? cover.toFixed(1) : cover) + ' of ' + fteTxt(S.fte) + '</b></p>' +
+      '<span class="hd-bar"><i style="width:' + pct + '%"></i></span></div>';
   }
 
   // Profile dialog
@@ -435,63 +394,49 @@
     return '' +
       '<article class="hd-gauge" style="--c:' + p.col + '">' +
         '<p class="hd-gauge__name">' + p.l + '</p>' +
-        '<p class="hd-gauge__gap">Target gap ' + gap + ' pp</p>' +
         '<svg viewBox="0 0 180 100" aria-hidden="true">' +
           '<path d="M20 90 A70 70 0 0 1 160 90" fill="none" stroke="#E5E7EB" stroke-width="14" stroke-linecap="round"/>' +
           '<path d="M20 90 A70 70 0 0 1 160 90" fill="none" stroke="' + p.col + '" stroke-width="14" stroke-linecap="round" stroke-dasharray="' + (len * closed).toFixed(1) + ' ' + len.toFixed(1) + '"/>' +
         '</svg>' +
         '<p class="hd-gauge__val">' + signed(p.m - p.c, ' pp') + '</p>' +
-        '<p class="hd-gauge__pts">' + (p.m - p.c) + ' / ' + gap + ' planned points · ' + Math.round(closed * 100) + '% of gap closed</p>' +
-        '<p class="hd-gauge__cmt">Current ' + p.c + ' · Modeled ' + p.m + ' · Target ' + p.t + '</p>' +
-        '<p class="hd-gauge__flag' + (p.m >= p.t ? ' is-ok' : '') + '">' + (p.m >= p.t ? 'Target reached' : (p.t - p.m) + ' pp still to target') + '</p>' +
+        '<p class="hd-gauge__flag' + (p.m >= p.t ? ' is-ok' : '') + '">' + (p.m >= p.t ? 'Target reached' : (p.t - p.m) + ' pp to target') + '</p>' +
       '</article>';
   }
 
   function render4() {
     var el = $('#hd-4'); if (!el) return;
     var sel = PILLARS.filter(function (p) { return S.pillars.indexOf(p.k) !== -1; });
-    var n = sel.length, reached = 0, pp = 0, cur = 0, mod = 0, tgt = 0;
-    sel.forEach(function (p) { if (p.m >= p.t) reached++; pp += p.m - p.c; cur += p.c; mod += p.m; tgt += p.t; });
+    var n = sel.length, pp = 0, mod = 0;
+    sel.forEach(function (p) { pp += p.m - p.c; mod += p.m; });
     var r1 = function (x) { return Math.round(x * 10) / 10; };
 
     el.innerHTML =
-      chrome(4, 'Choose Work Pillar Impact', 'HR Director · Programme level') +
-      '<div class="hd-wp hd-wp--dec">' +
-        '<p class="hd-eyebrow">Decision WM-204981 / Your review</p>' +
-        '<p class="hd-wp__name hd-wp__name--big">Move 120 specialists. Close critical gaps.</p>' +
-        '<p class="hd-wp__meta">Converter Delivery · 12-month programme · 430 FTE capability gap</p>' +
+      chrome(4, 'Work Pillar Impact') +
+      '<div class="hd-wp">' +
+        '<p class="hd-eyebrow">Decision WM-204981</p>' +
+        '<p class="hd-wp__name">Move 120 specialists to close a 430 FTE gap</p>' +
       '</div>' +
       '<div class="hd-cols hd-cols--wide">' +
         '<section>' +
-          '<div class="hd-rowhead"><p class="hd-card__title">Decision impact</p>' +
-            '<p class="hd-eyebrow">' + n + ' selected · ' + reached + ' target' + (reached === 1 ? '' : 's') + ' reached</p></div>' +
           (n
             ? '<div class="hd-gauges">' + sel.map(gauge).join('') + '</div>' +
               '<div class="hd-summary hd-summary--row">' +
                 '<div><span>Expected change</span><b>' + signed(r1(pp / n), ' pp') + '</b></div>' +
                 '<div><span>Modeled position</span><b>' + r1(mod / n) + ' / 100</b></div>' +
-                '<div><span>Current → target</span><b>' + r1(cur / n) + ' → ' + r1(tgt / n) + '</b></div>' +
               '</div>'
-            : '<p class="hd-empty">Select at least one work type to model the impact.</p>') +
+            : '<p class="hd-empty">Tick at least one Work Pillar.</p>') +
         '</section>' +
         '<section class="hd-card">' +
-          '<p class="hd-card__title">Select work type</p><p class="hd-muted">Choose up to 6 dimensions</p>' +
+          '<p class="hd-card__title">Work Pillars</p>' +
           '<div class="hd-picks">' +
             PILLARS.map(function (p) {
               var on = S.pillars.indexOf(p.k) !== -1;
               return '<label class="hd-pick' + (on ? ' is-on' : '') + '"><input type="checkbox" data-pillar="' + p.k + '"' + (on ? ' checked' : '') + '>' +
-                '<span class="hd-pick__l">' + p.l + '</span><span class="hd-pick__v">' + p.c + ' → ' + p.m + ' / ' + p.t + '</span>' +
-                '<b style="color:' + (p.m > p.c ? '#16A34A' : '#D97706') + '">' + signed(p.m - p.c, ' pp') + '</b></label>';
+                '<span class="hd-pick__l">' + p.l + '</span>' +
+                '<b style="color:' + (p.m > p.c ? '#16A34A' : '#94A3B8') + '">' + signed(p.m - p.c, ' pp') + '</b></label>';
             }).join('') +
           '</div>' +
         '</section>' +
-      '</div>' +
-      '<p class="hd-card__title hd-mt">Business impact</p>' +
-      '<div class="hd-biz">' +
-        '<div><span>Capability coverage</span><b class="hd-accent">28%</b><small>120 / 430 FTE · gross</small></div>' +
-        '<div><span>Time to readiness</span><b class="hd-accent">4 weeks</b><small>Assumed · pending validation</small></div>' +
-        '<div><span>Implementation cost</span><b class="hd-warn">To validate</b><small>Finance estimate required</small></div>' +
-        '<div><span>Quality impact</span><b class="hd-warn">Review needed</b><small>Operations validation required</small></div>' +
       '</div>' +
       '<div id="hd-approval"></div>';
     renderApproval();
@@ -511,21 +456,20 @@
     var now = stageOf();
     box.innerHTML =
       '<section class="hd-card hd-mt">' +
-        '<div class="hd-rowhead"><p class="hd-card__title">Decision approval</p><p class="hd-eyebrow">' + S.approved.length + ' of 5 roles completed</p></div>' +
-        '<p class="hd-muted">HR Expert → HR Director → Operations &amp; Finance in parallel → Programme Sponsor</p>' +
+        '<div class="hd-rowhead"><p class="hd-card__title">Approval</p><p class="hd-eyebrow">' + S.approved.length + ' of 5 done</p></div>' +
         '<ol class="hd-flow">' +
           ROLES.map(function (r) {
             var done = S.approved.indexOf(r.k) !== -1, act = now.indexOf(r.k) !== -1;
             var st = done ? (r.k === 'hrx' ? 'Prepared' : 'Approved') : act ? 'In review' : 'Pending';
             return '<li class="hd-role' + (done ? ' is-done' : act ? ' is-now' : '') + '">' +
               '<span class="hd-role__dot" aria-hidden="true">' + (done ? '✓' : '') + '</span>' +
-              '<span><b>' + r.l + '</b><em>' + st + '</em><small>' + r.d + '</small></span>' +
+              '<span><b>' + r.l + '</b><em>' + st + '</em></span>' +
               (act ? '<button type="button" class="hd-btn hd-btn--sm" data-act="approve" data-k="' + r.k + '">Approve</button>' : '') +
             '</li>';
           }).join('') +
         '</ol>' +
-        (now.length ? '' : '<div class="hd-summary is-good"><strong>Decision approved</strong><span>All five roles signed off. The redeployment can start.</span></div>') +
-        (S.approved.length > 1 ? '<button type="button" class="hd-link" data-act="resetappr">Restart approval</button>' : '') +
+        (now.length ? '' : '<div class="hd-summary is-good"><strong>Decision approved</strong></div>') +
+        (S.approved.length > 1 ? '<button type="button" class="hd-link" data-act="resetappr">Start again</button>' : '') +
       '</section>';
   }
 
@@ -633,7 +577,7 @@
     var key = D.cand + ':' + D.type + ':' + D.lang;
 
     el.innerHTML =
-      chrome(5, 'Create Documents', 'Recruiter · Saved layouts filled with the data from steps 01–03') +
+      chrome(5, 'Create documents') +
       '<div class="hd-cols hd-cols--doc">' +
         '<section class="hd-card">' +
           '<div class="hd-field"><label for="hd-cand">Candidate</label><select id="hd-cand" data-doc="cand">' +
@@ -643,7 +587,7 @@
           '</select></div>' +
           '<p class="hd-sub">Document</p>' +
           '<div class="hd-seg hd-seg--full" role="group" aria-label="Document type">' +
-            [['profile', 'Candidate profile'], ['offer', 'Job offer'], ['contract', 'Contract']].map(function (v) {
+            [['profile', 'Profile'], ['offer', 'Job offer'], ['contract', 'Contract']].map(function (v) {
               return '<button type="button" data-act="dtype" data-v="' + v[0] + '" aria-pressed="' + (D.type === v[0]) + '">' + v[1] + '</button>';
             }).join('') +
           '</div>' +
@@ -653,24 +597,16 @@
               return '<button type="button" data-act="dlang" data-v="' + v[0] + '" aria-pressed="' + (D.lang === v[0]) + '">' + v[1] + '</button>';
             }).join('') +
           '</div>' +
-          (D.type === 'profile' ? '<p class="hd-muted hd-mt">The profile is filled from the candidate assessment in step 03.</p>' :
-            '<div class="hd-fields hd-fields--2 hd-mt">' +
+          (D.type === 'profile' ? '' :
+            '<div class="hd-fields hd-mt">' +
               '<div class="hd-field"><label for="hd-start">Start date</label><input id="hd-start" type="date" data-doc="start" value="' + D.start + '"></div>' +
-              '<div class="hd-field"><label for="hd-months">Duration (months)</label><input id="hd-months" type="number" min="1" max="36" data-doc="months" value="' + D.months + '"></div>' +
+              '<div class="hd-field"><label for="hd-months">Months</label><input id="hd-months" type="number" min="1" max="36" data-doc="months" value="' + D.months + '"></div>' +
               '<div class="hd-field"><label for="hd-rate">Day rate (€)</label><input id="hd-rate" type="number" min="0" step="10" data-doc="rate" value="' + D.rate + '"></div>' +
-              '<div class="hd-field"><label for="hd-hours">Hours per week</label><input id="hd-hours" type="number" min="1" max="60" data-doc="hours" value="' + D.hours + '"></div>' +
             '</div>') +
           '<div class="hd-actions hd-actions--stack">' +
             '<button type="button" class="hd-btn" data-act="print">Download PDF</button>' +
-            '<button type="button" class="hd-btn hd-btn--ghost' + (S.sent[key] ? ' hd-btn--done' : '') + '" data-act="send">' + (S.sent[key] ? '✓ Sent ' + S.sent[key] : 'Mark as sent') + '</button>' +
+            '<button type="button" class="hd-btn hd-btn--ghost' + (S.sent[key] ? ' hd-btn--done' : '') + '" data-act="send">' + (S.sent[key] ? '✓ Sent' : 'Mark as sent') + '</button>' +
           '</div>' +
-          '<p class="hd-sub">Status · ' + D.cand + '</p>' +
-          '<ul class="hd-status">' +
-            [['profile', 'Candidate profile'], ['offer', 'Job offer'], ['contract', 'Contract']].map(function (v) {
-              var s = S.sent[D.cand + ':' + v[0] + ':en'] || S.sent[D.cand + ':' + v[0] + ':de'];
-              return '<li><span>' + v[1] + '</span><em class="' + (s ? 'is-sent' : '') + '">' + (s ? 'Sent ' + s : 'Draft') + '</em></li>';
-            }).join('') +
-          '</ul>' +
         '</section>' +
         '<section class="hd-paperwrap"><div class="doc" id="hd-doc">' + docHTML() + '</div></section>' +
       '</div>';
