@@ -26,9 +26,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/css/style.css?v=11">
-  <link rel="stylesheet" href="/css/uc06.css?v=8">
+  <link rel="stylesheet" href="/css/uc06.css?v=9">
   <script src="/js/main.js?v=9" defer></script>
+  <link rel="stylesheet" href="/css/uc06-demo.css?v=3">
   <script src="/js/uc06.js?v=2" defer></script>
+  <script src="/js/uc06-demo.js?v=3" defer></script>
 </head>
 <body class="uc">
 
@@ -151,7 +153,7 @@
         <div>
           <h2 id="role-title" class="uc-title">The role: Protection &amp; Control Commissioning Engineer</h2>
           <p class="uc-copy">A contract engagement, onsite in Germany, with 3+ years in P&amp;C commissioning. The requirement separates general engineering skills from task-related ones and lists the test equipment the project uses.</p>
-          <a class="uc-btn uc-btn--dark" href="#journey">Follow the journey</a>
+          <a class="uc-btn uc-btn--dark" href="#journey">Try the live demo</a>
         </div>
         <div class="uc-media">
           <img src="/assets/img/uc06/crop-role.webp" alt="Role and Hiring Details: Protection and Control Commissioning Engineer, 2 FTE, contract, within 8 weeks, onsite in Germany, 3+ years in P&amp;C commissioning." width="698" height="528" loading="lazy" decoding="async">
@@ -222,8 +224,10 @@
     <!-- ============ JOURNEY ============ -->
     <section class="uc-band" id="journey" aria-labelledby="journey-title">
       <div class="uc-center">
+        <p class="hd-live"><span class="hd-live__dot" aria-hidden="true"></span>Live demo · try it yourself</p>
         <h2 id="journey-title" class="uc-title">From work package to Work Pillar Impact</h2>
-        <p class="uc-copy">Steps 01 to 03 follow one work package: 2 FTE for WP-EL-042. Step 04 moves up to programme level, where Higherd models the impact of moving 120 specialists.</p>
+        <p class="uc-copy">Steps 01 to 03 follow one work package: 2 FTE for WP-EL-042. Step 04 moves up to programme level, where Higherd models the impact of moving 120 specialists. Step 05 creates the candidate documents.</p>
+        <p class="hd-live__how">These are working screens, not pictures. Click, type and drag inside them, and start with the pulsing button in each step. Everything runs on sample data in your browser.</p>
       </div>
       <div class="uc-screens">
         <div class="uc-tabs" data-tabs>
@@ -232,79 +236,72 @@
             <button class="uc-tab" role="tab" id="flow-tab-2" aria-controls="flow-2" aria-selected="false" tabindex="-1"><span>02</span>Identify gap</button>
             <button class="uc-tab" role="tab" id="flow-tab-3" aria-controls="flow-3" aria-selected="false" tabindex="-1"><span>03</span>Discover talent</button>
             <button class="uc-tab" role="tab" id="flow-tab-4" aria-controls="flow-4" aria-selected="false" tabindex="-1"><span>04</span>Work Pillar Impact</button>
+            <button class="uc-tab" role="tab" id="flow-tab-5" aria-controls="flow-5" aria-selected="false" tabindex="-1"><span>05</span>Documents</button>
           </div>
 
-          <div class="uc-panel" role="tabpanel" id="flow-1" aria-labelledby="flow-tab-1">
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-1" aria-labelledby="flow-tab-1">
             <div class="uc-caption">
               <h3 class="uc-caption__title">Define the demand</h3>
               <p class="uc-caption__role">Engineering Manager</p>
               <ul class="uc-points">
-                <li>Work-package role, responsibilities and essential competencies</li>
-                <li>Evidence expected from every candidate, captured up front</li>
-                <li>The team&#39;s current and target Ways of Working across six dimensions</li>
+                <li>Set the role: FTE, availability, hiring route and essential competencies</li>
+                <li>Evidence expected from every candidate is captured up front</li>
+                <li>Set the team&#39;s target for each of the six Ways of Working dimensions</li>
               </ul>
             </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/01-requirement.webp" target="_blank" rel="noopener" aria-label="Open the requirement screen in full size (new tab)">
-                <img src="/assets/img/uc06/01-requirement.webp" alt="Define Engineering Requirement: work package and role requirements, responsibilities, essential competencies and the team&#39;s Ways of Working baseline." width="2400" height="1985" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
+            <div class="hd" id="hd-1" aria-label="Interactive demo screen, step 01"></div>
           </div>
 
-          <div class="uc-panel" role="tabpanel" id="flow-2" aria-labelledby="flow-tab-2" hidden>
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-2" aria-labelledby="flow-tab-2" hidden>
             <div class="uc-caption">
               <h3 class="uc-caption__title">Identify the gap</h3>
               <p class="uc-caption__role">Engineering Manager + Recruiter</p>
               <ul class="uc-points">
-                <li>Work-package demand compared against verified team availability</li>
-                <li>Result: a 2 FTE protection engineering gap with an 8-week requirement</li>
+                <li>Confirm how much internal capacity the team has per capability</li>
+                <li>Higherd turns it into the real gap and the time to fill it</li>
                 <li>Ways of Working are assessed for the team, never for individuals</li>
               </ul>
             </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/02-gap.webp" target="_blank" rel="noopener" aria-label="Open the gap screen in full size (new tab)">
-                <img src="/assets/img/uc06/02-gap.webp" alt="Identify the Capability and WoW Gap: required vs. available engineering capacity per skill and the team&#39;s Ways of Working." width="2400" height="1985" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
+            <div class="hd" id="hd-2" aria-label="Interactive demo screen, step 02"></div>
           </div>
 
-          <div class="uc-panel" role="tabpanel" id="flow-3" aria-labelledby="flow-tab-3" hidden>
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-3" aria-labelledby="flow-tab-3" hidden>
             <div class="uc-caption">
               <h3 class="uc-caption__title">Discover talent</h3>
               <p class="uc-caption__role">Recruiter</p>
               <ul class="uc-points">
                 <li>Six candidates assessed for the role, shown with anonymized IDs</li>
-                <li>Scope the view to the organisation, a department, a project or the work package</li>
-                <li>Each card shows FTE coverage and team WoW changes, e.g. +6 Efficiency / −2 Employer Satisfaction</li>
+                <li>Compare them by overall, Ways of Working or skills gap impact</li>
+                <li>Open a profile and build a shortlist that covers the FTE you need</li>
               </ul>
             </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/07-board.webp" target="_blank" rel="noopener" aria-label="Open the candidate board in full size (new tab)">
-                <img src="/assets/img/uc06/07-board.webp" alt="Candidate board for Protection and Control Commissioning Engineer: six candidate cards with overall impact gauges and normalized impact." width="2400" height="2025" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
+            <div class="hd" id="hd-3" aria-label="Interactive demo screen, step 03"></div>
           </div>
 
-          <div class="uc-panel" role="tabpanel" id="flow-4" aria-labelledby="flow-tab-4" hidden>
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-4" aria-labelledby="flow-tab-4" hidden>
             <div class="uc-caption">
               <h3 class="uc-caption__title">Choose Work Pillar Impact</h3>
               <p class="uc-caption__role">HR Director</p>
               <ul class="uc-points">
-                <li>Now at programme level: Converter Delivery, 12 months, a 430 FTE capability gap</li>
-                <li>Agility +16&nbsp;pp and Efficiency +14&nbsp;pp, both targets reached</li>
-                <li>28% capability coverage (120 / 430 FTE) and 4 weeks to readiness; cost and quality still to validate</li>
-                <li>Approval: HR Expert → HR Director → Operations Lead &amp; Finance Partner → Programme Sponsor</li>
+                <li>Now at programme level: moving 120 specialists against a 430 FTE capability gap</li>
+                <li>Choose the Work Pillars that matter and see the modeled impact for each</li>
+                <li>Take the decision through its approvers, from HR Expert to Programme Sponsor</li>
               </ul>
             </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/10-decision-impact.webp" target="_blank" rel="noopener" aria-label="Open the Decision impact screen in full size (new tab)">
-                <img src="/assets/img/uc06/10-decision-impact.webp" alt="Decision WM-204981, Move 120 specialists: Agility +16 pp and Efficiency +14 pp gauges, work type selection, business impact cards and the decision approval chain." width="2400" height="1670" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
+            <div class="hd" id="hd-4" aria-label="Interactive demo screen, step 04"></div>
+          </div>
+
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-5" aria-labelledby="flow-tab-5" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Create the documents</h3>
+              <p class="uc-caption__role">Recruiter</p>
+              <ul class="uc-points">
+                <li>Candidate profile, job offer and contract from saved layouts</li>
+                <li>Filled with the data from the earlier steps; add start date, duration and rate</li>
+                <li>English or German, ready to download as PDF</li>
+              </ul>
             </div>
+            <div class="hd" id="hd-5" aria-label="Interactive demo screen, step 05"></div>
           </div>
 
           <div class="uc-tabs__nav">
@@ -314,87 +311,16 @@
             <button class="uc-step-btn uc-step-btn--next" type="button" data-step="1">
               Next step<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
             </button>
-            <a class="uc-step-btn uc-step-btn--next" href="#work-pillar-impact" data-step-end hidden>
-              Next: Explore each pillar<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
+            <a class="uc-step-btn uc-step-btn--next" href="#numbers" data-step-end hidden>
+              Next: How to read the numbers<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
             </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ WORK PILLAR IMPACT ============ -->
-    <section class="uc-band" id="work-pillar-impact" aria-labelledby="scenario-title">
-      <div class="uc-center">
-        <h2 id="scenario-title" class="uc-title">Explore each Work Pillar</h2>
-        <p class="uc-copy">The same programme-level decision for Converter Delivery, viewed by pillar: 120 specialists against a 430 FTE capability gap over 12 months.</p>
-      </div>
-      <div class="uc-screens">
-        <div class="uc-tabs" data-tabs>
-          <div class="uc-tabs__list" role="tablist" aria-label="Work pillars">
-            <button class="uc-tab" role="tab" id="scenario-tab-2" aria-controls="scenario-2" aria-selected="true">Agility only</button>
-            <button class="uc-tab" role="tab" id="scenario-tab-3" aria-controls="scenario-3" aria-selected="false" tabindex="-1">L&amp;D + Agility</button>
-            <button class="uc-tab" role="tab" id="scenario-tab-4" aria-controls="scenario-4" aria-selected="false" tabindex="-1">All six</button>
-          </div>
-
-          <div class="uc-panel" role="tabpanel" id="scenario-2" aria-labelledby="scenario-tab-2">
-            <div class="uc-caption">
-              <h3 class="uc-caption__title">Agility only</h3>
-              <p class="uc-caption__role">HR Director</p>
-              <ul class="uc-points">
-                <li>120 FTE proposed redeployment against a 430 FTE capability gap</li>
-                <li>Agility: 58 → 74, target 74, +16&nbsp;pp expected</li>
-                <li>$2.1M programme opportunity: modeled annual, not redeployment ROI</li>
-              </ul>
-            </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/13-decision-agility.webp" target="_blank" rel="noopener" aria-label="Open the Agility view in full size (new tab)">
-                <img src="/assets/img/uc06/13-decision-agility.webp" alt="Workforce Decision WM-204981, Redeploy 120 internal specialists: key figures, decision impact with Agility selected (+16 pp), time to readiness and the approval workflow." width="2400" height="2588" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="uc-panel" role="tabpanel" id="scenario-3" aria-labelledby="scenario-tab-3" hidden>
-            <div class="uc-caption">
-              <h3 class="uc-caption__title">L&amp;D + Agility</h3>
-              <p class="uc-caption__role">HR Director</p>
-              <ul class="uc-points">
-                <li>Two dimensions selected: +12&nbsp;pp expected, 67/100 modeled position</li>
-                <li>L&amp;D: 52 → 60, target 70, +8&nbsp;pp</li>
-                <li>Agility: 58 → 74, target 74, +16&nbsp;pp</li>
-              </ul>
-            </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/14-decision-ld-agility.webp" target="_blank" rel="noopener" aria-label="Open the L&amp;D and Agility view in full size (new tab)">
-                <img src="/assets/img/uc06/14-decision-ld-agility.webp" alt="Workforce Decision with L&amp;D and Agility selected: +12 pp expected, 67 out of 100." width="2400" height="2588" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="uc-panel" role="tabpanel" id="scenario-4" aria-labelledby="scenario-tab-4" hidden>
-            <div class="uc-caption">
-              <h3 class="uc-caption__title">All six</h3>
-              <p class="uc-caption__role">HR Director</p>
-              <ul class="uc-points">
-                <li>All six dimensions selected: +7.3&nbsp;pp expected, 59.3/100 modeled position</li>
-                <li>Agility +16, Efficiency +14, L&amp;D +8, ESAT +6, D&amp;I +0, ESG +0&nbsp;pp</li>
-                <li>Equal-weight aggregate: 52 → 59.3, target 66.3</li>
-              </ul>
-            </div>
-            <div class="uc-shots">
-              <a class="uc-shot" href="/assets/img/uc06/15-decision-all-six.webp" target="_blank" rel="noopener" aria-label="Open the all six dimensions view in full size (new tab)">
-                <img src="/assets/img/uc06/15-decision-all-six.webp" alt="Workforce Decision with all six WoW dimensions selected: +7.3 pp expected, 59.3 out of 100, with current, modeled and target values per dimension." width="2400" height="2588" loading="lazy" decoding="async">
-                <span class="uc-shot__hint"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ============ NUMBERS ============ -->
-    <section class="uc-section uc-section--soft" aria-labelledby="numbers-title">
+    <section class="uc-section uc-section--soft" id="numbers" aria-labelledby="numbers-title">
       <div class="uc-center">
         <h2 id="numbers-title" class="uc-title">How to read the numbers</h2>
         <p class="uc-copy">Each figure measures something different.</p>

@@ -53,7 +53,7 @@
 /* Jumps and step changes land below the sticky header */
 .uc-tabs,
 #journey,
-#work-pillar-impact,
+#numbers,
 #contact {
   scroll-margin-top: 76px;
 }
