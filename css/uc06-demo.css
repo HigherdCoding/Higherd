@@ -1983,3 +1983,304 @@
     padding: 14px;
   }
 }
+
+/* =========================================================
+   App frame: locked Higherd menu beside each screen
+   ========================================================= */
+.hd-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hd-main {
+  min-width: 0;
+}
+
+.hd-side {
+  border-bottom: 1px solid #F1F2F4;
+  background: #FBFBFD;
+}
+
+.hd-side__logo {
+  display: none;
+}
+
+.hd-side ul {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  margin: 0;
+  padding: 6px 10px;
+  list-style: none;
+}
+
+.hd-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 8px;
+  border-radius: 9px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--hd-copy);
+}
+
+.hd-nav svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hd-nav__l,
+.hd-nav__lock {
+  display: none;
+}
+
+.hd-nav.is-locked {
+  color: #B4BCC8;
+  cursor: not-allowed;
+}
+
+.hd-nav.is-active {
+  background: var(--hd-tint);
+  font-weight: 600;
+  color: var(--hd-accent);
+}
+
+.hd-nav__n {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: var(--hd-accent);
+  font-size: 0.625rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  color: #fff;
+}
+
+/* Tablet and up: menu as a column on the left */
+@media (min-width: 640px) {
+  .hd-shell {
+    grid-template-columns: 4rem minmax(0, 1fr);
+  }
+
+  .hd-side {
+    border-right: 1px solid #F1F2F4;
+    border-bottom: 0;
+  }
+
+  .hd-side ul {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 14px 10px;
+  }
+
+  .hd-nav {
+    min-height: 40px;
+  }
+}
+
+/* Wide screens: full menu with labels and locks */
+@media (min-width: 1280px) {
+  .hd-shell {
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+  }
+
+  .hd-side__logo {
+    display: block;
+    padding: 18px 18px 6px;
+  }
+
+  .hd-side__logo img {
+    width: 96px;
+    height: auto;
+  }
+
+  .hd-side ul {
+    padding: 8px 10px 16px;
+  }
+
+  .hd-nav {
+    justify-content: flex-start;
+    padding: 0 10px;
+  }
+
+  .hd-nav__l {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .hd-nav__lock {
+    display: block;
+    width: 12px !important;
+    height: 12px !important;
+    stroke-width: 0 !important;
+    color: #CBD2DC;
+  }
+
+  .hd-nav__n {
+    position: static;
+  }
+
+  /* Leave room for the menu: screens stack their two columns */
+  .hd-cols,
+  .hd-cols--wide,
+  .hd-cols--doc {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Step 03: Talent Pool + interview ---------- */
+.hd-cand__id {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--hd-ink);
+  text-decoration: underline dotted #CBD5E1;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.hd-cand__id:hover {
+  color: var(--hd-accent);
+  text-decoration-color: currentColor;
+}
+
+.hd-cand__btns {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+
+.hd-cand__btns [data-act="pool"]:not(.hd-btn--done) {
+  border-color: transparent;
+  background: var(--hd-tint);
+  color: var(--hd-accent);
+  box-shadow: none;
+}
+
+.hd-cand__btns [data-act="pool"]:not(.hd-btn--done):hover {
+  background: #E0E7FF;
+}
+
+.hd-cand__btns [data-act="interview"] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--hd-copy);
+}
+
+.hd-cand__btns [data-act="interview"]:hover {
+  background: #F1F5F9;
+  color: var(--hd-ink);
+}
+
+.hd-cand__iv {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px 10px;
+  border-radius: 99px;
+  background: #FFF7ED;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #C2410C;
+}
+
+.hd-shortbar .hd-muted {
+  font-weight: 400;
+}
+
+/* ---------- Step 04: escalation ---------- */
+.hd-esc {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #E8EBF0;
+}
+
+.hd-esc p {
+  flex: 1 1 14rem;
+  color: var(--hd-copy);
+}
+
+.hd-esc.is-done {
+  border-color: #FED7AA;
+  background: #FFF7ED;
+}
+
+.hd-esc.is-done b {
+  color: #C2410C;
+}
+
+/* ---------- Confirmation message ---------- */
+.hd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: #0F172A;
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5);
+  font: 500 0.9375rem/1.4 var(--font-sans, Inter, system-ui, sans-serif);
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 16px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.hd-toast.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.hd-toast__ok {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #22C55E;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hd-toast {
+    transition: none;
+  }
+}
+
+/* Five approval roles fit on one row next to the menu */
+.hd-flow {
+  grid-template-columns: repeat(auto-fit, minmax(6.75rem, 1fr));
+}

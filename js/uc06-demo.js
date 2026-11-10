@@ -6,7 +6,7 @@
    Form input is kept in localStorage so it survives a reload.
    ========================================================= */
 (function () {
-  var KEY = 'higherd-uc06-demo-v1';
+  var KEY = 'higherd-uc06-demo-v2';
 
   var WOW = [
     { k: 'dni', l: 'D&I', c: '#F97316' },
@@ -78,6 +78,8 @@
       shortlist: ['RK-113567'],
       pillars: ['eff', 'agl'],
       approved: ['hrx'],
+      escalated: false,
+      interviews: {},
       doc: { cand: 'RK-113567', type: 'profile', lang: 'en', start: '2027-01-11', months: 12, rate: 780, hours: 40 },
       sent: {},
       savedAt: null
@@ -146,18 +148,13 @@
   var HINTS = {
     1: 'Change the FTE or drag a target on the bars.',
     2: 'Use + and − to set the capacity you already have.',
-    3: 'Shortlist candidates or open a profile.',
-    4: 'Tick the Work Pillars you care about.',
+    3: 'Add a candidate to the Talent Pool or arrange an interview.',
+    4: 'Tick the Work Pillars, then escalate the decision.',
     5: 'Switch the document or the language.'
   };
 
   function chrome(step, title, role) {
     return '' +
-      '<div class="hd-chrome">' +
-        '<span class="hd-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
-        '<span class="hd-chrome__title">Higherd</span>' +
-        '<button type="button" class="hd-link" data-act="reset">Reset demo</button>' +
-      '</div>' +
       '<div class="hd-head">' +
         '<p class="hd-head__title">' + title + '</p>' +
       '</div>' +
@@ -312,19 +309,21 @@
     var label = { overall: 'impact', wow: 'team fit', skill: 'skills' }[S.view];
 
     box.innerHTML = list.length ? '<div class="hd-board">' + list.map(function (c) {
-      var v = impactOf(c), on = S.shortlist.indexOf(c.id) !== -1;
+      var v = impactOf(c), on = S.shortlist.indexOf(c.id) !== -1, iv = S.interviews[c.id];
       var extra = c.skills.length - 3;
       return '' +
         '<article class="hd-cand' + (on ? ' is-on' : '') + '">' +
           '<div class="hd-cand__top">' +
-            '<div><p class="hd-cand__id">' + c.id + (c.star ? ' <span class="hd-star" title="Top match">★</span>' : '') + '</p>' +
+            '<div><button type="button" class="hd-cand__id" data-act="profile" data-id="' + c.id + '" title="Open profile">' + c.id + '</button>' +
+              (c.star ? ' <span class="hd-star" title="Top match">★</span>' : '') +
             '<p class="hd-cand__role">' + c.yrs + ' years · covers ' + fteTxt(c.fte) + '</p></div>' +
             '<span class="hd-impact ' + (v >= 0 ? 'is-up' : 'is-down') + '"><b>' + signed(v, '%') + '</b><small>' + label + '</small></span>' +
           '</div>' +
           '<div class="hd-tags">' + c.skills.slice(0, 3).map(function (s) { return '<span>' + s + '</span>'; }).join('') + (extra > 0 ? '<span>+' + extra + '</span>' : '') + '</div>' +
+          (iv ? '<p class="hd-cand__iv">Interview ' + dayTxt(iv.d) + ' · ' + iv.t + '</p>' : '') +
           '<div class="hd-cand__btns">' +
-            '<button type="button" class="hd-btn hd-btn--ghost" data-act="profile" data-id="' + c.id + '">Profile</button>' +
-            '<button type="button" class="hd-btn' + (on ? ' hd-btn--done' : '') + '" data-act="short" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '✓ Shortlisted' : 'Shortlist') + '</button>' +
+            '<button type="button" class="hd-btn' + (on ? ' hd-btn--done' : '') + '" data-act="pool" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '✓ In Talent Pool' : 'Add to Talent Pool') + '</button>' +
+            '<button type="button" class="hd-btn hd-btn--ghost' + (iv ? ' hd-btn--booked' : '') + '" data-act="interview" data-id="' + c.id + '">' + (iv ? 'Change interview' : 'Arrange interview') + '</button>' +
           '</div>' +
         '</article>';
     }).join('') + '</div>' : '<p class="hd-empty">No candidate matches “' + esc(S.q) + '”.</p>';
@@ -336,8 +335,10 @@
     var cover = 0;
     S.shortlist.forEach(function (id) { cover += cand(id).fte; });
     var pct = S.fte ? Math.min(100, cover / S.fte * 100) : 100;
+    var ivs = Object.keys(S.interviews).length;
     bar.innerHTML =
-      '<div><p><b>Shortlist covers ' + (cover % 1 ? cover.toFixed(1) : cover) + ' of ' + fteTxt(S.fte) + '</b></p>' +
+      '<div><p><b>Talent Pool covers ' + (cover % 1 ? cover.toFixed(1) : cover) + ' of ' + fteTxt(S.fte) + '</b>' +
+        ' <span class="hd-muted">· ' + S.shortlist.length + ' in pool · ' + ivs + ' interview' + (ivs === 1 ? '' : 's') + ' booked</span></p>' +
       '<span class="hd-bar"><i style="width:' + pct + '%"></i></span></div>';
   }
 
@@ -355,7 +356,11 @@
         var b = e.target.closest('[data-act]');
         if (!b) return;
         if (b.getAttribute('data-act') === 'close') dlg.close();
-        if (b.getAttribute('data-act') === 'short') { toggleShort(b.getAttribute('data-id')); openProfile(b.getAttribute('data-id')); }
+        var id = b.getAttribute('data-id');
+        if (b.getAttribute('data-act') === 'pool') { togglePool(id); openProfile(id); }
+        if (b.getAttribute('data-act') === 'interview') openInterview(id);
+        if (b.getAttribute('data-act') === 'book') bookInterview(id);
+        if (b.getAttribute('data-act') === 'cancelint') { delete S.interviews[id]; save(); renderBoard(); renderNav(); dlg.close(); toast('Interview with ' + id + ' cancelled'); }
         if (b.getAttribute('data-act') === 'docs') { S.doc.cand = b.getAttribute('data-id'); save(); render5(); dlg.close(); goTo(5); }
       });
     }
@@ -374,15 +379,62 @@
       '<dl class="hd-kv"><div><dt>Team WoW change</dt><dd>' + c.wd + '</dd></div><div><dt>Available</dt><dd>In ' + c.weeks + ' weeks</dd></div><div><dt>Assessment note</dt><dd>' + c.note + '</dd></div></dl>' +
       '<div class="hd-actions">' +
         '<button type="button" class="hd-btn hd-btn--ghost" data-act="docs" data-id="' + c.id + '">Create documents</button>' +
-        '<button type="button" class="hd-btn' + (on ? ' hd-btn--done' : '') + '" data-act="short" data-id="' + c.id + '">' + (on ? '✓ Shortlisted' : 'Add to Shortlist') + '</button>' +
+        '<button type="button" class="hd-btn hd-btn--ghost" data-act="interview" data-id="' + c.id + '">' + (S.interviews[id] ? 'Change interview' : 'Arrange interview') + '</button>' +
+        '<button type="button" class="hd-btn' + (on ? ' hd-btn--done' : '') + '" data-act="pool" data-id="' + c.id + '">' + (on ? '✓ In Talent Pool' : 'Add to Talent Pool') + '</button>' +
       '</div>';
     if (!dlg.open) dlg.showModal();
   }
 
-  function toggleShort(id) {
+  function togglePool(id) {
     var i = S.shortlist.indexOf(id);
-    if (i === -1) S.shortlist.push(id); else S.shortlist.splice(i, 1);
-    save(); renderBoard(); render5();
+    if (i === -1) { S.shortlist.push(id); toast(id + ' added to the Talent Pool'); }
+    else { S.shortlist.splice(i, 1); toast(id + ' removed from the Talent Pool'); }
+    save(); renderBoard(); render5(); renderNav();
+  }
+
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function nextWorkday() {
+    var d = new Date(); d.setDate(d.getDate() + 2);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return iso(d);
+  }
+  function dayTxt(isoDate) {
+    var p = isoDate.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return DAYS[d.getDay()] + ' ' + p[2] + '.' + p[1] + '.';
+  }
+
+  function openInterview(id) {
+    var dlg = $('#hd-dialog');
+    if (!dlg) { openProfile(id); dlg = $('#hd-dialog'); }
+    var iv = S.interviews[id] || { d: nextWorkday(), t: '10:00' };
+    dlg.innerHTML =
+      '<div class="hd-dialog__head"><div><p class="hd-eyebrow">Arrange interview</p><p class="hd-dialog__title">' + id + '</p>' +
+        '<p class="hd-muted">Video call · 45 minutes · with the Engineering Manager</p></div>' +
+        '<button type="button" class="hd-x" data-act="close" aria-label="Close">×</button></div>' +
+      '<div class="hd-fields hd-mt">' +
+        '<div class="hd-field"><label for="hd-iv-d">Date</label><input id="hd-iv-d" type="date" value="' + iv.d + '"></div>' +
+        '<div class="hd-field"><label for="hd-iv-t">Time</label><select id="hd-iv-t">' +
+          ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'].map(function (t) { return '<option' + (t === iv.t ? ' selected' : '') + '>' + t + '</option>'; }).join('') +
+        '</select></div>' +
+      '</div>' +
+      '<p class="hd-muted hd-mt">The candidate gets an invitation and the slot is added to the Calendar.</p>' +
+      '<div class="hd-actions">' +
+        (S.interviews[id]
+          ? '<button type="button" class="hd-btn hd-btn--ghost" data-act="cancelint" data-id="' + id + '">Cancel interview</button>'
+          : '<button type="button" class="hd-btn hd-btn--ghost" data-act="close">Cancel</button>') +
+        '<button type="button" class="hd-btn" data-act="book" data-id="' + id + '">' + (S.interviews[id] ? 'Update invitation' : 'Send invitation') + '</button>' +
+      '</div>';
+    if (!dlg.open) dlg.showModal();
+  }
+
+  function bookInterview(id) {
+    var d = $('#hd-iv-d').value || nextWorkday(), t = $('#hd-iv-t').value;
+    var again = !!S.interviews[id];
+    S.interviews[id] = { d: d, t: t };
+    save(); renderBoard(); renderNav();
+    $('#hd-dialog').close();
+    toast((again ? 'Interview moved: ' : 'Invitation sent: ') + id + ', ' + dayTxt(d) + ' at ' + t);
   }
 
   // =========================================================
@@ -453,23 +505,26 @@
 
   function renderApproval() {
     var box = $('#hd-approval'); if (!box) return;
-    var now = stageOf();
+    var up = S.escalated;
     box.innerHTML =
-      '<section class="hd-card hd-mt">' +
-        '<div class="hd-rowhead"><p class="hd-card__title">Approval</p><p class="hd-eyebrow">' + S.approved.length + ' of 5 done</p></div>' +
+      '<section class="hd-card">' +
+        '<div class="hd-rowhead"><p class="hd-card__title">Approval</p><p class="hd-eyebrow">You are the HR Expert</p></div>' +
         '<ol class="hd-flow">' +
           ROLES.map(function (r) {
-            var done = S.approved.indexOf(r.k) !== -1, act = now.indexOf(r.k) !== -1;
-            var st = done ? (r.k === 'hrx' ? 'Prepared' : 'Approved') : act ? 'In review' : 'Pending';
-            return '<li class="hd-role' + (done ? ' is-done' : act ? ' is-now' : '') + '">' +
-              '<span class="hd-role__dot" aria-hidden="true">' + (done ? '✓' : '') + '</span>' +
-              '<span><b>' + r.l + '</b><em>' + st + '</em></span>' +
-              (act ? '<button type="button" class="hd-btn hd-btn--sm" data-act="approve" data-k="' + r.k + '">Approve</button>' : '') +
+            var cls = '', st = 'Pending';
+            if (r.k === 'hrx') { cls = ' is-done'; st = up ? 'Escalated' : 'Prepared'; }
+            else if (up && r.k === 'hrd') { cls = ' is-now'; st = 'In review'; }
+            return '<li class="hd-role' + cls + '">' +
+              '<span class="hd-role__dot" aria-hidden="true">' + (cls === ' is-done' ? '✓' : '') + '</span>' +
+              '<span><b>' + r.l + (r.k === 'hrx' ? ' (you)' : '') + '</b><em>' + st + '</em></span>' +
             '</li>';
           }).join('') +
         '</ol>' +
-        (now.length ? '' : '<div class="hd-summary is-good"><strong>Decision approved</strong></div>') +
-        (S.approved.length > 1 ? '<button type="button" class="hd-link" data-act="resetappr">Start again</button>' : '') +
+        (up
+          ? '<div class="hd-esc is-done"><p><b>Escalated to the HR Director</b> · ' + up + '. Waiting for their review.</p>' +
+              '<button type="button" class="hd-link" data-act="resetappr">Undo</button></div>'
+          : '<div class="hd-esc"><p>Your recommendation is ready. The HR Director reviews it next.</p>' +
+              '<button type="button" class="hd-btn" data-act="escalate">Escalate to HR Director</button></div>') +
       '</section>';
   }
 
@@ -582,7 +637,7 @@
         '<section class="hd-card">' +
           '<div class="hd-field"><label for="hd-cand">Candidate</label><select id="hd-cand" data-doc="cand">' +
             ids.map(function (id) {
-              return '<option value="' + id + '"' + (id === D.cand ? ' selected' : '') + '>' + id + (S.shortlist.indexOf(id) !== -1 ? ' · shortlisted' : '') + '</option>';
+              return '<option value="' + id + '"' + (id === D.cand ? ' selected' : '') + '>' + id + (S.shortlist.indexOf(id) !== -1 ? ' · in Talent Pool' : '') + '</option>';
             }).join('') +
           '</select></div>' +
           '<p class="hd-sub">Document</p>' +
@@ -641,7 +696,7 @@
   var PULSE = {
     1: '[data-act="fte"][data-d="0.5"]',
     2: '[data-act="avail"][data-d="0.5"]',
-    3: '.hd-cand [data-act="short"][aria-pressed="false"]',
+    3: '.hd-cand [data-act="pool"][aria-pressed="false"]',
     4: '.hd-pick:not(.is-on)',
     5: '[data-act="dlang"][aria-pressed="false"]'
   };
@@ -671,6 +726,87 @@
   // =========================================================
   // Events
   // =========================================================
+  // =========================================================
+  // App frame: window bar + locked Higherd menu around each screen
+  // =========================================================
+  var NAV = [
+    ['dash', 'Dashboard', 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z'],
+    ['jobs', 'Job Board', 'M3 7h18v13H3zM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'],
+    ['align', 'Alignment', 'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20zM12 7a5 5 0 1 0 0 10a5 5 0 1 0 0-10z'],
+    ['cands', 'Candidates', 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
+    ['pool', 'Talent Pool', 'M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z'],
+    ['cal', 'Calendar', 'M3 5h18v16H3zM16 3v4M8 3v4M3 10h18'],
+    ['dec', 'Decisions', 'M12 2l10 10-10 10L2 12z'],
+    ['docs', 'Documents', 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h6'],
+    ['set', 'Settings', 'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1']
+  ];
+  var STEP_NAV = { 1: 'jobs', 2: 'align', 3: 'cands', 4: 'dec', 5: 'docs' };
+  var STEP_ROLE = { 1: 'Engineering Manager', 2: 'Engineering Manager', 3: 'Recruiter', 4: 'HR Expert', 5: 'Recruiter' };
+
+  function navHTML(step) {
+    var counts = { pool: S.shortlist.length, cal: Object.keys(S.interviews).length };
+    return '<nav class="hd-side" aria-label="Higherd menu">' +
+      '<p class="hd-side__logo"><img src="/assets/img/logo.svg?v=8" alt="Higherd" width="96" height="31"></p>' +
+      '<ul>' + NAV.map(function (n) {
+        var on = STEP_NAV[step] === n[0];
+        return '<li><span class="hd-nav' + (on ? ' is-active' : ' is-locked') + '"' +
+          (on ? ' aria-current="page"' : ' aria-disabled="true" title="Locked in this demo"') + '>' +
+          '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + n[2] + '"/></svg>' +
+          '<span class="hd-nav__l">' + n[1] + '</span>' +
+          (counts[n[0]] ? '<em class="hd-nav__n">' + counts[n[0]] + '</em>' : '') +
+          (on ? '' : '<svg class="hd-nav__lock" aria-hidden="true"><use href="#icon-lock"/></svg>') +
+        '</span></li>';
+      }).join('') + '</ul></nav>';
+  }
+
+  function frame(el, step) {
+    var main = document.createElement('div');
+    main.className = 'hd-main';
+    while (el.firstChild) main.appendChild(el.firstChild);
+    el.innerHTML =
+      '<div class="hd-chrome">' +
+        '<span class="hd-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
+        '<span class="hd-chrome__title">Signed in as ' + STEP_ROLE[step] + '</span>' +
+        '<button type="button" class="hd-link" data-act="reset">Reset demo</button>' +
+      '</div>' +
+      '<div class="hd-shell">' + navHTML(step) + '</div>';
+    el.querySelector('.hd-shell').appendChild(main);
+  }
+
+  // Menu badges (Talent Pool, Calendar) change without a full re-render
+  function renderNav() {
+    for (var n = 1; n <= 5; n++) {
+      var side = document.querySelector('#hd-' + n + ' .hd-side');
+      if (side) side.outerHTML = navHTML(n);
+    }
+  }
+
+  function framed(fn, n) {
+    return function () { fn(); var el = document.getElementById('hd-' + n); if (el) frame(el, n); };
+  }
+  render1 = framed(render1, 1);
+  render2 = framed(render2, 2);
+  render3 = framed(render3, 3);
+  render4 = framed(render4, 4);
+  render5 = framed(render5, 5);
+
+  // Confirmation message after an action
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById('hd-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'hd-toast';
+      t.className = 'hd-toast';
+      t.setAttribute('role', 'status');
+      document.body.appendChild(t);
+    }
+    t.innerHTML = '<span class="hd-toast__ok" aria-hidden="true">✓</span>' + esc(msg);
+    t.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('is-on'); }, 3200);
+  }
+
   function renderAll() { render1(); render2(); render3(); render4(); render5(); }
 
   function onClick(e) {
@@ -699,18 +835,24 @@
     }
     if (act === 'view') { S.view = b.getAttribute('data-v'); save(); render3(); return; }
     if (act === 'profile') { openProfile(b.getAttribute('data-id')); return; }
-    if (act === 'short') { toggleShort(b.getAttribute('data-id')); return; }
-    if (act === 'approve') {
-      if (S.approved.indexOf(b.getAttribute('data-k')) === -1) S.approved.push(b.getAttribute('data-k'));
-      save(); render4(); return;
+    if (act === 'pool') { togglePool(b.getAttribute('data-id')); return; }
+    if (act === 'interview') { openInterview(b.getAttribute('data-id')); return; }
+    if (act === 'escalate') {
+      var d = new Date();
+      S.escalated = today() + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      save(); render4();
+      toast('Decision WM-204981 escalated to the HR Director');
+      return;
     }
-    if (act === 'resetappr') { S.approved = ['hrx']; save(); render4(); return; }
+    if (act === 'resetappr') { S.escalated = false; save(); render4(); return; }
     if (act === 'dtype') { S.doc.type = b.getAttribute('data-v'); save(); render5(); return; }
     if (act === 'dlang') { S.doc.lang = b.getAttribute('data-v'); save(); render5(); return; }
     if (act === 'print') { printDoc(); return; }
     if (act === 'send') {
       var key = S.doc.cand + ':' + S.doc.type + ':' + S.doc.lang;
-      if (S.sent[key]) delete S.sent[key]; else S.sent[key] = today();
+      var names = { profile: 'Candidate profile', offer: 'Job offer', contract: 'Contract' };
+      if (S.sent[key]) delete S.sent[key];
+      else { S.sent[key] = today(); toast(names[S.doc.type] + ' sent to ' + S.doc.cand); }
       save(); render5(); return;
     }
   }
