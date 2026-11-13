@@ -880,3 +880,144 @@
     padding-right: 48px;
   }
 }
+
+/* ---------- Product screenshots as the main visual ---------- */
+.uc-wrap--wide {
+  max-width: 76rem;
+}
+
+.uc-showcase .uc-wrap {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.uc-showcase__text {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.uc-showcase__text .uc-stats {
+  margin-top: 0;
+}
+
+.uc-shot--hero {
+  border-radius: 18px;
+  box-shadow: 0 40px 80px -30px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.uc-shot--fit {
+  justify-self: center;
+  width: 100%;
+  max-width: 698px;
+}
+
+.uc-split--media .uc-shot {
+  min-width: 0;
+}
+
+.uc-shot {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.uc-shot:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 44px 80px -30px rgba(15, 23, 42, 0.5);
+}
+
+@media (min-width: 1024px) {
+  .uc-showcase__text {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 3rem;
+  }
+
+  .uc-showcase__text .uc-stats {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .uc-split--media {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 3.5rem;
+  }
+
+  /* Role: text first, screenshot on the right */
+  .uc-split--media-end {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-shot {
+    transition: none;
+  }
+
+  .uc-shot:hover {
+    transform: none;
+  }
+}
+
+/* Challenge screenshot: trim the empty band above the content */
+.uc-shot--trim img {
+  aspect-ratio: 1290 / 1030;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* "Try the live demo": the main call to action of the role section */
+.uc-btn--demo {
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 22px 0 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4A0FA8 0%, #6D28D9 55%, #9333EA 100%);
+  font-size: 1rem;
+  box-shadow: 0 14px 30px -12px rgba(74, 15, 168, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.uc-btn--demo:hover {
+  background: linear-gradient(135deg, #4A0FA8 0%, #6D28D9 55%, #9333EA 100%);
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 36px -12px rgba(74, 15, 168, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.uc-btn--demo__play {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+  color: #4A0FA8;
+}
+
+.uc-btn--demo__play svg {
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  fill: currentColor;
+}
+
+.uc-btn--demo__arrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 180ms ease;
+}
+
+.uc-btn--demo:hover .uc-btn--demo__arrow {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-btn--demo,
+  .uc-btn--demo__arrow {
+    transition: none;
+  }
+
+  .uc-btn--demo:hover,
+  .uc-btn--demo:hover .uc-btn--demo__arrow {
+    transform: none;
+  }
+}
