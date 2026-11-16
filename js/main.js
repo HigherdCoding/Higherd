@@ -61,6 +61,7 @@ if (form) {
   const fields = [...form.querySelectorAll('[required]')];
   const statusEl = form.querySelector('.form__status');
   const submitBtn = form.querySelector('button[type="submit"]');
+  const submitLabel = submitBtn.textContent;
   const successEl = form.parentElement.querySelector('.form__success');
 
   // Validate on blur, then live once a field has been flagged
@@ -120,7 +121,7 @@ if (form) {
       statusEl.textContent = 'Something went wrong while sending. Please try again.';
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit';
+      submitBtn.textContent = submitLabel;
     }
   });
 }
