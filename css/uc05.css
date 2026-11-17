@@ -215,3 +215,24 @@
     transition: none;
   }
 }
+
+/* Role: demo button with the Higherd icon beside it */
+.uc-demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.uc-role .uc-demo-row .uc-btn {
+  margin-top: 0;
+}
+
+.uc-demo-row__icon {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px -12px rgba(74, 15, 168, 0.45), 0 0 0 1px rgba(74, 15, 168, 0.1);
+}
