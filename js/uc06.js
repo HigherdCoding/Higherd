@@ -52,5 +52,16 @@
     });
 
     if (prev) prev.disabled = true;
+
+    // Links elsewhere on the page that open a given step (data-goto-step="2")
+    document.querySelectorAll('[data-goto-step]').forEach(function (link) {
+      var to = Number(link.getAttribute('data-goto-step')) - 1;
+      if (!tabs[to]) return;
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        select(to, false);
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   });
 })();

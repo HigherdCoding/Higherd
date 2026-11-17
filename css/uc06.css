@@ -360,6 +360,35 @@
   color: #065F46;
 }
 
+/* Gap list: minus marks for what is missing */
+.uc-checks--gaps svg {
+  background: #E11D48;
+}
+
+.uc-checks__link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.uc-checks__link:hover {
+  color: var(--color-accent);
+}
+
+/* Footnote mark pointing to the scenario note */
+.uc-footnote {
+  margin-left: 1px;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.uc-footnote:hover {
+  text-decoration: underline;
+}
+
 .uc-note {
   max-width: 56rem;
   margin: 1.5rem auto 0;
