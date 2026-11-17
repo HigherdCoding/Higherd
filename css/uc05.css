@@ -1,0 +1,217 @@
+/* =========================================================
+   Higherd – UC05 demo page (/pi-demo-2026-UC05)
+   Builds on uc06.css; only the screenshot tour is new here.
+   ========================================================= */
+
+/* ---------- Caption beside the screen ---------- */
+.tour .uc-caption {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.tour .uc-caption__role {
+  justify-self: start;
+  margin-top: 0;
+}
+
+.tour__count {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #C4B5FD;
+}
+
+.tour .uc-caption__line {
+  margin: 0;
+  line-height: 1.55;
+  color: #CBD5E1;
+}
+
+/* Screen language switch: English (default) / Deutsch */
+.tour__lang {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.tour__lang-label {
+  margin-right: 0.25rem;
+  font-size: 0.875rem;
+  color: #94A3B8;
+}
+
+.tour__lang-btn {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  cursor: pointer;
+}
+
+.tour__lang-btn:hover {
+  border-color: #C4B5FD;
+}
+
+.tour__lang-btn[aria-pressed="true"] {
+  border-color: #C4B5FD;
+  background: #C4B5FD;
+  color: #140F1F;
+}
+
+.tour__lang-btn:focus-visible {
+  outline: 2px solid #C4B5FD;
+  outline-offset: 2px;
+}
+
+/* Screens of the active chapter: one dot per screen, clickable */
+.tour__dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tour__dots[hidden] {
+  display: none;
+}
+
+.tour__dot {
+  min-width: var(--tap);
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.tour__dot:hover {
+  border-color: var(--color-white);
+}
+
+.tour__dot[aria-current="step"] {
+  border-color: var(--color-white);
+  background: var(--color-white);
+  color: var(--color-accent);
+}
+
+/* ---------- Screen ---------- */
+.tour__stage {
+  position: relative;
+  min-width: 0;
+}
+
+/* Pannable on small screens: the German screen keeps a readable width */
+.tour__frame {
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: #F8F9FA;
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
+  -webkit-overflow-scrolling: touch;
+}
+
+.tour__frame:focus-visible {
+  outline: 3px solid #C4B5FD;
+  outline-offset: 3px;
+}
+
+.tour__frame img {
+  display: block;
+  width: 100%;
+  min-width: 860px;
+  height: auto;
+}
+
+.tour__full {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.85);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+.tour__full:hover,
+.tour__full:focus-visible {
+  background: var(--color-accent);
+}
+
+.tour__full svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tour__pan {
+  margin: -0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: #94A3B8;
+}
+
+/* ---------- Controls ---------- */
+.tour__restart[disabled] {
+  visibility: hidden;
+}
+
+.tour__note {
+  margin: 1.5rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #94A3B8;
+}
+
+@media (max-width: 639px) {
+  /* Three buttons in one row: drop the labels' extra padding */
+  .uc-tabs__nav {
+    gap: 8px;
+  }
+
+  .uc-tabs__nav .uc-step-btn {
+    padding: 0 0.875rem;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tour__frame img {
+    min-width: 0;
+  }
+
+  .tour__pan {
+    display: none;
+  }
+
+  .uc-numbers--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour__dot {
+    transition: none;
+  }
+}
