@@ -335,3 +335,18 @@
     transition: none;
   }
 }
+
+/* "One source. Two submission packages." on one line, second sentence in the logo orange */
+.uc-center--wide {
+  max-width: 64rem;
+}
+
+.uc-title__accent {
+  color: #FF8330;
+}
+
+@media (min-width: 768px) {
+  .uc-title--one-line {
+    white-space: nowrap;
+  }
+}
