@@ -216,23 +216,174 @@
   }
 }
 
-/* Role: demo button with the badge image beside it */
-.uc-demo-row {
-  display: flex;
-  flex-wrap: wrap;
+/* Role: "Explore live demo" button with Gerda's photo.
+   On click the photo slides to the right while its ring spins; the face stays upright. */
+.uc-live-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.uc-live-wrap__hint {
+  width: 22px;
+  height: 22px;
+  color: #FF8330;
+}
+
+.uc-live {
+  --orb: 60px;
+  --pad: 6px;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   gap: 1rem;
-  margin-top: 1.75rem;
+  min-height: calc(var(--orb) + var(--pad) * 2);
+  padding: var(--pad) 1.5rem var(--pad) var(--pad);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2A0870 0%, #4A0FA8 38%, #7C12D2 100%);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 131, 48, 0.85),
+    0 0 18px rgba(255, 110, 90, 0.4),
+    0 16px 32px -14px rgba(74, 15, 168, 0.7);
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: box-shadow 200ms ease, transform 200ms ease;
 }
 
-.uc-role .uc-demo-row .uc-btn {
-  margin-top: 0;
+.uc-live:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 131, 48, 1),
+    0 0 26px rgba(255, 110, 90, 0.55),
+    0 20px 36px -14px rgba(74, 15, 168, 0.75);
 }
 
-.uc-demo-row__icon {
+.uc-live:focus-visible {
+  outline: 3px solid #FF8330;
+  outline-offset: 4px;
+}
+
+.uc-live__orb {
+  position: relative;
+  z-index: 1;
   flex: none;
-  width: auto;
-  height: 56px;
+  width: var(--orb);
+  height: var(--orb);
+  border-radius: 50%;
+  background: #1E0657;
+  transition: transform 700ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Spinning ring: thin orange circle, a band of ticks and a glowing dot */
+.uc-live__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 131, 48, 0.9);
+}
+
+.uc-live__ring::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 196, 150, 0.95) 0deg 1.6deg, transparent 1.6deg 6deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px)), conic-gradient(#000 0deg 130deg, transparent 130deg);
+  -webkit-mask-composite: source-in;
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px)), conic-gradient(#000 0deg 130deg, transparent 130deg);
+  mask-composite: intersect;
+}
+
+.uc-live__dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: #FFB067;
+  box-shadow: 0 0 8px 2px rgba(255, 131, 48, 0.9);
+  transform: rotate(130deg) translateY(calc(var(--orb) / -2 + 1px));
+}
+
+.uc-live__face {
+  position: absolute;
+  inset: 5px;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px #A855F7;
+}
+
+.uc-live__divider {
+  align-self: stretch;
+  width: 1px;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.3);
+  transition: opacity 250ms ease;
+}
+
+.uc-live__label,
+.uc-live__arrow {
+  transition: opacity 250ms ease;
+}
+
+.uc-live__arrow {
+  width: 20px;
+  height: 20px;
+  margin-left: 0.25rem;
+}
+
+.uc-live:hover .uc-live__arrow {
+  transform: translateX(3px);
+}
+
+/* Clicked: the orb travels to the right end, the ring turns, the text fades */
+.uc-live.is-launching .uc-live__orb {
+  transform: translateX(var(--travel, 0px));
+}
+
+.uc-live.is-launching .uc-live__ring {
+  animation: uc-live-spin 700ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.uc-live.is-launching .uc-live__label,
+.uc-live.is-launching .uc-live__arrow,
+.uc-live.is-launching .uc-live__divider {
+  opacity: 0;
+}
+
+@keyframes uc-live-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 639px) {
+  .uc-live {
+    --orb: 52px;
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uc-live,
+  .uc-live__orb,
+  .uc-live__label,
+  .uc-live__arrow,
+  .uc-live__divider {
+    transition: none;
+  }
+
+  .uc-live.is-launching .uc-live__ring {
+    animation: none;
+  }
 }
 
 /* Hero photo gallery: large photo, small photos on the right swap it */

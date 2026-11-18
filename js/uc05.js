@@ -181,3 +181,32 @@
     });
   });
 })();
+
+/* "Explore live demo": slide Gerda's photo to the right, spin its ring, then open the demo */
+(function () {
+  var btn = document.querySelector('[data-live-demo]');
+  if (!btn) return;
+  var orb = btn.querySelector('.uc-live__orb');
+  var target = document.getElementById('journey');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var busy = false;
+
+  function go() {
+    if (target) target.scrollIntoView({ behavior: reduce ? 'instant' : 'smooth', block: 'start' });
+    if (history.replaceState) history.replaceState(null, '', '#journey');
+  }
+
+  btn.addEventListener('click', function (e) {
+    if (!target) return;
+    e.preventDefault();
+    if (reduce) { go(); return; }
+    if (busy) return;
+    busy = true;
+    var pad = parseFloat(getComputedStyle(btn).paddingLeft) || 0;
+    btn.style.setProperty('--travel', (btn.clientWidth - orb.offsetWidth - pad * 2) + 'px');
+    btn.classList.add('is-launching');
+    setTimeout(go, 650);
+    // Put the button back once the page has moved on, ready for the next visit
+    setTimeout(function () { btn.classList.remove('is-launching'); busy = false; }, 1600);
+  });
+})();
