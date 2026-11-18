@@ -159,3 +159,25 @@
 
   show(0, false);
 })();
+
+/* Hero photo gallery: clicking a small photo shows it in the large frame */
+(function () {
+  var root = document.querySelector('[data-gallery]');
+  if (!root) return;
+  var main = root.querySelector('[data-gallery-main]');
+  var thumbs = Array.prototype.slice.call(root.querySelectorAll('.uc-gallery__thumb'));
+
+  main.addEventListener('load', function () { main.classList.remove('is-loading'); });
+
+  thumbs.forEach(function (thumb) {
+    thumb.addEventListener('click', function () {
+      if (thumb.getAttribute('aria-pressed') === 'true') return;
+      thumbs.forEach(function (t) { t.setAttribute('aria-pressed', t === thumb ? 'true' : 'false'); });
+      main.classList.add('is-loading');
+      main.width = Number(thumb.getAttribute('data-w'));
+      main.height = Number(thumb.getAttribute('data-h'));
+      main.alt = thumb.getAttribute('data-alt');
+      main.src = thumb.getAttribute('data-src');
+    });
+  });
+})();
