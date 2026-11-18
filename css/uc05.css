@@ -501,3 +501,27 @@
     white-space: nowrap;
   }
 }
+
+/* Less empty space between the hero gallery and "The delivery goal" */
+.uc-hero--gallery {
+  padding-bottom: 2.5rem;
+}
+
+.uc-hero--gallery + .uc-section {
+  padding-top: 2.5rem;
+}
+
+@media (max-width: 767px) {
+  .uc-hero--gallery {
+    padding-bottom: 1.5rem;
+  }
+
+  .uc-hero--gallery + .uc-section {
+    padding-top: 1.5rem;
+  }
+
+  /* Phones: section headings centred */
+  .uc-section .uc-title {
+    text-align: center;
+  }
+}
