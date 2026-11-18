@@ -216,7 +216,7 @@
   }
 }
 
-/* Role: demo button with the Higherd icon beside it */
+/* Role: demo button with the badge image beside it */
 .uc-demo-row {
   display: flex;
   flex-wrap: wrap;
@@ -231,7 +231,7 @@
 
 .uc-demo-row__icon {
   flex: none;
-  width: 56px;
+  width: auto;
   height: 56px;
 }
 
