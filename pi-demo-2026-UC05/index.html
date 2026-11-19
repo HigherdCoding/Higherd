@@ -28,8 +28,12 @@
   <link rel="stylesheet" href="/css/style.css?v=11">
   <link rel="stylesheet" href="/css/uc06.css?v=14">
   <link rel="stylesheet" href="/css/uc05.css?v=13">
+  <link rel="stylesheet" href="/css/uc06-demo.css?v=10">
+  <link rel="stylesheet" href="/css/uc05-demo.css?v=1">
   <script src="/js/main.js?v=10" defer></script>
-  <script src="/js/uc05.js?v=4" defer></script>
+  <script src="/js/uc05.js?v=5" defer></script>
+  <script src="/js/uc06.js?v=3" defer></script>
+  <script src="/js/uc05-demo.js?v=1" defer></script>
 </head>
 <body class="uc">
 
@@ -196,52 +200,72 @@
         <p class="uc-copy">Adapt the layout. Create the documents. Assign the workflow. See who needs to act next.</p>
       </div>
       <div class="uc-screens">
-        <div class="uc-tabs" data-tour>
-          <div class="uc-tabs__list" role="tablist" aria-label="Demo chapters">
-            <button class="uc-tab" role="tab" id="ch-tab-1" aria-controls="tour-panel" aria-selected="true" data-chapter="1"><span>01</span>Overview</button>
-            <button class="uc-tab" role="tab" id="ch-tab-2" aria-controls="tour-panel" aria-selected="false" tabindex="-1" data-chapter="2"><span>02</span>Documents</button>
-            <button class="uc-tab" role="tab" id="ch-tab-3" aria-controls="tour-panel" aria-selected="false" tabindex="-1" data-chapter="3"><span>03</span>PDF Creator</button>
-            <button class="uc-tab" role="tab" id="ch-tab-4" aria-controls="tour-panel" aria-selected="false" tabindex="-1" data-chapter="4"><span>04</span>Workflow</button>
-            <button class="uc-tab" role="tab" id="ch-tab-5" aria-controls="tour-panel" aria-selected="false" tabindex="-1" data-chapter="5"><span>05</span>Progress</button>
+        <div class="uc-tabs" data-tabs>
+          <div class="uc-tabs__list" role="tablist" aria-label="Journey steps">
+            <button class="uc-tab" role="tab" id="flow-tab-1" aria-controls="flow-1" aria-selected="true"><span>01</span>Overview</button>
+            <button class="uc-tab" role="tab" id="flow-tab-2" aria-controls="flow-2" aria-selected="false" tabindex="-1"><span>02</span>Documents</button>
+            <button class="uc-tab" role="tab" id="flow-tab-3" aria-controls="flow-3" aria-selected="false" tabindex="-1"><span>03</span>PDF Creator</button>
+            <button class="uc-tab" role="tab" id="flow-tab-4" aria-controls="flow-4" aria-selected="false" tabindex="-1"><span>04</span>Workflow</button>
+            <button class="uc-tab" role="tab" id="flow-tab-5" aria-controls="flow-5" aria-selected="false" tabindex="-1"><span>05</span>Progress</button>
           </div>
 
-          <div class="uc-panel tour" role="tabpanel" id="tour-panel" aria-labelledby="ch-tab-1">
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-1" aria-labelledby="flow-tab-1">
             <div class="uc-caption">
-              <p class="tour__count" data-tour-count>Screen 1 of 12</p>
-              <h3 class="uc-caption__title" data-tour-title></h3>
+              <h3 class="uc-caption__title">See what needs coordination</h3>
               <p class="uc-caption__role">Planning Coordinator · General Contractor</p>
-              <p class="uc-caption__line" data-tour-line></p>
-              <div class="tour__lang" role="group" aria-label="Screen language">
-                <span class="tour__lang-label">Screens</span>
-                <button type="button" class="tour__lang-btn" data-tour-lang="en" aria-pressed="true">English</button>
-                <button type="button" class="tour__lang-btn" data-tour-lang="de" aria-pressed="false">Deutsch</button>
-              </div>
-              <ol class="tour__dots" aria-label="Screens in this chapter" data-tour-dots></ol>
+              <p class="uc-caption__line">Check the document packages, preparation status and your open tasks. Open the document manager to start.</p>
             </div>
-            <div class="tour__stage">
-              <div class="tour__frame" data-tour-frame>
-                <img data-tour-img src="/assets/img/uc05/en/01-my-overview.webp" alt="" width="2200" height="1610" decoding="async">
-              </div>
-              <a class="tour__full" data-tour-full href="/assets/img/uc05/en/01-my-overview.webp" target="_blank" rel="noopener"><svg aria-hidden="true" focusable="false"><use href="#icon-expand"/></svg>Full size</a>
+            <div class="hd" id="hd-1" aria-label="Interactive demo screen, step 01"></div>
+          </div>
+
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-2" aria-labelledby="flow-tab-2" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Pick the source revision</h3>
+              <p class="uc-caption__role">Planning Coordinator · General Contractor</p>
+              <p class="uc-caption__line">Choose the source document. Source files and revision IDs stay unchanged. Then open it in PDF Creator.</p>
             </div>
-            <p class="tour__pan" aria-hidden="true">Swipe sideways to see the whole screen</p>
+            <div class="hd" id="hd-2" aria-label="Interactive demo screen, step 02"></div>
+          </div>
+
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-3" aria-labelledby="flow-tab-3" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Map once, create both layouts</h3>
+              <p class="uc-caption__role">Planning Coordinator · General Contractor</p>
+              <p class="uc-caption__line">Map project data onto the target template, compare the rail and road layouts, run the check, then create the documents.</p>
+            </div>
+            <div class="hd" id="hd-3" aria-label="Interactive demo screen, step 03"></div>
+          </div>
+
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-4" aria-labelledby="flow-tab-4" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">Assign the review route</h3>
+              <p class="uc-caption__role">Planning Coordinator · General Contractor</p>
+              <p class="uc-caption__line">Assign the rail and road documents to their workflows. In the editor, set roles, durations and phases from each task menu.</p>
+            </div>
+            <div class="hd" id="hd-4" aria-label="Interactive demo screen, step 04"></div>
+          </div>
+
+          <div class="uc-panel uc-panel--app" role="tabpanel" id="flow-5" aria-labelledby="flow-tab-5" hidden>
+            <div class="uc-caption">
+              <h3 class="uc-caption__title">See who needs to act next</h3>
+              <p class="uc-caption__role">Planning Coordinator · General Contractor</p>
+              <p class="uc-caption__line">Track the open tasks across both packages. Mark a task done or return it, and My overview updates.</p>
+            </div>
+            <div class="hd" id="hd-5" aria-label="Interactive demo screen, step 05"></div>
           </div>
 
           <div class="uc-tabs__nav">
-            <button class="uc-step-btn" type="button" data-tour-step="-1">
+            <button class="uc-step-btn" type="button" data-step="-1">
               <svg aria-hidden="true" focusable="false"><use href="#icon-arrow-left"/></svg>Previous
             </button>
-            <button class="uc-step-btn tour__restart" type="button" data-tour-restart>
-              <svg aria-hidden="true" focusable="false"><use href="#icon-restart"/></svg>Restart
-            </button>
-            <button class="uc-step-btn uc-step-btn--next" type="button" data-tour-step="1">
+            <button class="uc-step-btn uc-step-btn--next" type="button" data-step="1">
               Next step<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
             </button>
-            <a class="uc-step-btn uc-step-btn--next" href="#numbers" data-tour-end hidden>
+            <a class="uc-step-btn uc-step-btn--next" href="#numbers" data-step-end hidden>
               Next: How to read the numbers<svg aria-hidden="true" focusable="false"><use href="#icon-arrow-right"/></svg>
             </a>
           </div>
-          <p class="tour__note">Gerda coordinates the workflow. Technical reviews and approvals remain with the assigned roles.</p>
+          <p class="tour__note">Gerda coordinates the workflow. Technical reviews and approvals remain with the assigned roles. All data in this demo is illustrative.</p>
         </div>
       </div>
     </section>
