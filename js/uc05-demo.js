@@ -7,7 +7,7 @@
    State is kept in localStorage so it survives a reload.
    ========================================================= */
 (function () {
-  var KEY = 'higherd-uc05-demo-v1';
+  var KEY = 'higherd-uc05-demo-v2';
   var TODAY = '15.11.2026';
 
   // ---------- sample data ----------
@@ -43,10 +43,10 @@
   var DOCSETS = ['Cover sheet · Title block · Form', 'Title block', 'Cover sheet', 'Form', 'Explanatory report'];
 
   function task(id, ph, t, role, code, dur, person) {
-    return { id: id, ph: ph, t: t, role: role, person: person || 'Unassigned', code: code, dur: dur, docs: DOCSETS[0], par: false };
+    return { id: id, ph: ph, t: t, role: role, person: person || 'Unassigned', code: code, dur: dur, docs: DOCSETS[0], next: [], par: [] };
   }
   function board() {
-    return [
+    var b = [
       task('t1', 'prep', 'Prepare document package', 'Design consortium', '01a', 'automatically on upload'),
       task('t2', 'prep', 'Assign target templates', 'Design consortium', '01b', 'automatically on upload'),
       task('t3', 'prep', 'Send documents for review', 'Planning coordinator (GC)', '02', 'on confirmed status', 'Gerda Bauer'),
@@ -59,13 +59,24 @@
       task('t10', 'appr', 'Client approval', 'Client representative', '06', '10 days'),
       task('t11', 'appr', 'Archive revision', 'Planning coordinator (GC)', '10', 'on confirmed status', 'Gerda Bauer')
     ];
+    var by = {};
+    b.forEach(function (t) { by[t.id] = t; });
+    [['t1', ['t2']], ['t2', ['t3']], ['t3', ['t4', 't5', 't6']], ['t4', ['t7']], ['t5', ['t7']], ['t6', ['t7']],
+     ['t7', ['t8']], ['t8', ['t9']], ['t9', ['t10']], ['t10', ['t11']]].forEach(function (l) { by[l[0]].next = l[1]; });
+    by.t5.par = ['t6']; by.t6.par = ['t5'];
+    return b;
   }
 
+  // Projects a workflow can be switched on for (this demo works in BSW-01)
+  var PROJECTS = [['BSW-01', 'S21 · BSW-01 · Glare screen'], ['BSW-02', 'S21 · BSW-02 · Noise barrier'], ['BSW-03', 'S21 · BSW-03 · Rail bridge']];
+  var HOME = 'BSW-01';
+
+  // Workflows: st = Draft (not saved yet) / Saved / Released; act = active per project
   var LIB = [
-    { id: 'WF-B01', desc: 'Rail · Document review', type: 'Created automatically', proj: 'S21 · BSW-01', st: 'Active', board: 'WF-B01' },
-    { id: 'WF-S02', desc: 'Road · Document review', type: 'Organization template', proj: 'Cross-project', st: 'Active', board: 'WF-S02' },
-    { id: 'TPL-BAHN-01', desc: 'Title block · Rail', type: 'Uploaded', proj: 'S21 · BSW-01', st: 'Approved' },
-    { id: 'TPL-STR-01', desc: 'Drawing register · DEGES', type: 'Created automatically', proj: '—', st: 'Draft' }
+    { id: 'WF-B01', desc: 'Rail · Document review', type: 'Created automatically', st: 'Released', act: { 'BSW-01': true }, board: 'WF-B01' },
+    { id: 'WF-S02', desc: 'Road · Document review', type: 'Organization template', st: 'Released', act: { 'BSW-02': true, 'BSW-03': true }, board: 'WF-S02' },
+    { id: 'TPL-BAHN-01', desc: 'Title block · Rail', type: 'Uploaded', proj: 'S21 · BSW-01', st: 'Approved template' },
+    { id: 'TPL-STR-01', desc: 'Drawing register · DEGES', type: 'Created automatically', proj: '—', st: 'Draft template' }
   ];
 
   var BASE_TASKS = [
@@ -100,7 +111,8 @@
       tasks: JSON.parse(JSON.stringify(BASE_TASKS)),
       tq: '', tf: 'open',
       sort: { files: ['', 1], tasks: ['', 1] },
-      log: [], seen: 0
+      log: [], seen: 0,
+      proj: HOME, lshow: 'all'
     };
   }
 
@@ -114,6 +126,9 @@
         var s = JSON.parse(raw);
         Object.keys(d).forEach(function (k) { if (!(k in s)) s[k] = d[k]; });
         s.menu = ''; s.edit = '';
+        Object.keys(s.boards || {}).forEach(function (k) {
+          s.boards[k].forEach(function (t) { if (!Array.isArray(t.next)) t.next = []; if (!Array.isArray(t.par)) t.par = []; });
+        });
         return s;
       }
     } catch (e) { /* storage blocked: run with defaults */ }
@@ -140,7 +155,26 @@
   function phaseOf(k) { for (var i = 0; i < PHASES.length; i++) if (PHASES[i].k === k) return i; return 0; }
   function curBoard() { return S.boards[S.wf] || []; }
   function findTask(id) { var b = curBoard(); for (var i = 0; i < b.length; i++) if (b[i].id === id) return b[i]; return null; }
+  function prevOf(t) { return curBoard().filter(function (x) { return (x.next || []).indexOf(t.id) !== -1; }).map(function (x) { return x.id; }); }
+  function names(ids) {
+    var l = ids.map(function (i) { var x = findTask(i); return x ? x.t : ''; }).filter(Boolean);
+    return l.length > 2 ? l.slice(0, 2).join(', ') + ' +' + (l.length - 2) : l.join(', ');
+  }
+  function newTask(ph, title) {
+    return { id: 'x' + (S.seq++), ph: ph, t: title, role: ROLES[0], person: 'Unassigned', code: String(curBoard().length + 1).padStart(2, '0'), dur: '5 days', docs: DOCSETS[0], next: [], par: [] };
+  }
+  var dep = null, moving = '';
   function isDraft() { var r = libRow(S.wf); return !!(r && r.st === 'Draft' && S.boards[S.wf]); }
+  function isActive(id, pr) { var r = libRow(id); return !!(r && r.act && r.act[pr || HOME]); }
+  function projName(k) { for (var i = 0; i < PROJECTS.length; i++) if (PROJECTS[i][0] === k) return PROJECTS[i][1]; return k; }
+  function activeIn(r) { return PROJECTS.filter(function (pr) { return r.act && r.act[pr[0]]; }).map(function (pr) { return pr[0]; }); }
+  function openOn(id) { return S.tasks.filter(function (t) { return t.wf === id && t.state === 'open'; }).length; }
+  function switchBtn(r, pr) {
+    var on = !!(r.act && r.act[pr]), draft = r.st === 'Draft';
+    return '<button type="button" class="b-switch' + (on ? ' is-on' : '') + '" role="switch" aria-checked="' + on + '" data-act="toggle" data-id="' + esc(r.id) + '" data-v="' + pr + '"' +
+      (draft ? ' disabled title="Save the draft before activating it"' : '') + ' aria-label="' + esc(r.id) + ' active on ' + esc(projName(pr)) + '">' +
+      '<i aria-hidden="true"></i><span>' + (draft ? 'Draft' : on ? 'Active' : 'Inactive') + '</span></button>';
+  }
   function libRow(id) { for (var i = 0; i < S.lib.length; i++) if (S.lib[i].id === id) return S.lib[i]; return null; }
 
   // All documents in the document manager, with workflow and status
@@ -581,12 +615,13 @@
       ? '<section class="hd-panel b-hero"><p class="hd-panel__t">No target documents yet</p><p class="hd-muted">Create the rail and road documents in PDF Creator first. You can still explore the library and the editor.</p>' +
           '<div class="hd-actions b-left"><button type="button" class="hd-btn" data-go="3">Go to PDF Creator</button></div></section>'
       : '<section class="hd-panel b-hero"><p class="hd-panel__t">' + (n ? 'Assign ' + n + ' target documents to a workflow' : '✓ All 6 target documents are in a workflow') + '</p>' +
-          '<p class="hd-muted">Rail and road are managed separately. Review participants, deadlines and roles before starting.</p></section>';
+          '<p class="hd-muted">Rail and road are managed separately. Only workflows that are active on S21 · BSW-01 can take documents. Review participants, deadlines and roles before starting.</p></section>';
     var rows = ['rail', 'road'].map(function (k) {
-      var w = WFS[k], on = S.assigned[k];
+      var w = WFS[k], on = S.assigned[k], live = isActive(w.id);
       return '<tr><td><b>' + w.id + '</b> · ' + w.name + '</td><td>' + w.proc + '</td><td>' + (S.created ? '3 target documents' : 'None yet') + '</td>' +
-        '<td>' + (on ? status('In workflow') : '<span class="b-plain">' + w.status + '</span>') + '</td><td class="b-acts">' +
+        '<td>' + (on ? status('In workflow') : live ? '<span class="b-live is-on">Active</span>' : '<span class="b-live">Inactive on BSW-01</span>') + '</td><td class="b-acts">' +
         (on ? '<span class="hd-ok">✓ Started</span>'
+            : !live ? '<button type="button" class="hd-btn hd-btn--sm" data-act="actwf" data-id="' + w.id + '">Activate for BSW-01</button>'
             : '<button type="button" class="hd-btn hd-btn--sm" data-act="assignwf" data-v="' + k + '"' + (S.created ? '' : ' disabled') + '>' + (k === 'rail' ? 'Select existing' : 'Use template') + '</button>') +
         '<button type="button" class="hd-btn hd-btn--sm hd-btn--ghost" data-act="openwf" data-id="' + w.id + '">Open in editor</button></td></tr>';
     }).join('');
@@ -601,33 +636,48 @@
   }
 
   function libraryView() {
+    var pr = S.proj, rows = S.lib.filter(function (r) {
+      if (S.lshow === 'all') return true;
+      if (!r.board) return false;
+      return S.lshow === 'on' ? !!(r.act && r.act[pr]) : !(r.act && r.act[pr]);
+    });
+    var nOn = S.lib.filter(function (r) { return r.board && r.act && r.act[pr]; }).length;
     return '<section class="hd-panel">' +
       '<div class="b-bar"><p class="hd-panel__t b-grow">Workflow library</p>' +
+        '<label class="b-sel b-sel--l"><span>Project</span><select data-sel="proj">' + opt(PROJECTS, pr) + '</select></label>' +
+        '<label class="b-sel"><span class="hd-sr">Show</span><select data-sel="lshow">' + opt([['all', 'All items'], ['on', 'Active on this project'], ['off', 'Inactive on this project']], S.lshow) + '</select></label>' +
         '<button type="button" class="hd-btn b-orange" data-act="newwf">Create new</button></div>' +
-      '<div class="hd-tablewrap"><table class="hd-table b-table"><thead><tr><th>Created on</th><th>Item ID</th><th>Description</th><th>Type</th><th>Projects</th><th>Created by</th><th>Status</th><th>Actions</th></tr></thead><tbody>' +
-      S.lib.map(function (r) {
-        return '<tr><td>' + (r.on || TODAY) + '</td><td><b>' + esc(r.id) + '</b></td><td>' + esc(r.desc) + '</td><td><span class="b-type">' + esc(r.type) + '</span></td>' +
-          '<td>' + esc(r.proj) + '</td><td>Gerda Bauer</td><td><span class="b-plain">' + r.st + '</span></td><td class="b-icons">' +
+      '<p class="b-note">' + svg('check') + '<span><b>' + nOn + ' workflow' + (nOn === 1 ? '' : 's') + ' active on ' + esc(projName(pr)) + '.</b> Switch a workflow on or off for the selected project. Only active workflows can take documents there. A workflow with open tasks stays active until they are done.</span></p>' +
+      '<div class="hd-tablewrap"><table class="hd-table b-table"><thead><tr><th>Item ID</th><th>Description</th><th>Type</th><th>Active on</th><th>Status on ' + pr + '</th><th>Actions</th></tr></thead><tbody>' +
+      (rows.length ? rows.map(function (r) {
+        var on = r.board ? activeIn(r) : [];
+        return '<tr><td><b>' + esc(r.id) + '</b></td><td class="b-wrap">' + esc(r.desc) + '</td><td><span class="b-type">' + esc(r.type) + '</span></td>' +
+          '<td>' + (r.board ? (on.length ? on.join(', ') : '<span class="hd-muted">No project</span>') : esc(r.proj)) + '</td>' +
+          '<td>' + (r.board ? switchBtn(r, pr) : '<span class="b-plain">' + esc(r.st) + '</span>') + '</td><td class="b-icons">' +
           '<button type="button" class="b-ib" data-act="openwf" data-id="' + esc(r.id) + '" aria-label="Open ' + esc(r.id) + '"' + (r.board ? '' : ' disabled') + '>' + svg('eye') + '</button>' +
           '<button type="button" class="b-ib" data-act="dupwf" data-id="' + esc(r.id) + '" aria-label="Duplicate ' + esc(r.id) + '"' + (r.board ? '' : ' disabled') + '>' + svg('copy') + '</button>' +
           '<button type="button" class="b-ib b-ib--bad" data-act="delwf" data-id="' + esc(r.id) + '" aria-label="Delete ' + esc(r.id) + '">' + svg('trash') + '</button></td></tr>';
-      }).join('') + '</tbody></table></div>' +
-      '<p class="hd-foot">A duplicate copies phases and dependencies, never completed approvals or signatures.</p></section>';
+      }).join('') : '<tr><td colspan="6" class="hd-empty">No workflows match this filter.</td></tr>') + '</tbody></table></div>' +
+      '<p class="hd-foot">A duplicate copies phases and dependencies, never completed approvals or signatures. It starts inactive on every project.</p></section>';
   }
 
   function taskCard(t, i) {
-    var menu = S.menu === t.id, edit = S.edit === t.id, p = phaseOf(t.ph);
+    var menu = S.menu === t.id, edit = S.edit === t.id, p = phaseOf(t.ph), pv = prevOf(t);
     if (edit) return assignForm(t);
-    return '<li class="b-task" style="--c:' + PHASES[p].c + '" draggable="true" data-drag="' + t.id + '">' +
-      '<div class="b-task__h"><span class="b-grip" aria-hidden="true" title="Drag to another phase">' + svg('grip') + '</span><b>' + esc(t.t) + '</b>' +
+    if (dep && dep.id === t.id) return depForm(t, dep.kind);
+    return '<li class="b-task' + (moving === t.id ? ' is-picked' : '') + '" style="--c:' + PHASES[p].c + '" draggable="true" data-drag="' + t.id + '">' +
+      '<div class="b-task__h"><button type="button" class="b-grip" data-act="pick" data-id="' + t.id + '" aria-pressed="' + (moving === t.id) + '" aria-label="Move ' + esc(t.t) + ' to another phase" title="Drag, or tap and choose a phase">' + svg('grip') + '</button><b>' + esc(t.t) + '</b>' +
         '<button type="button" class="b-more" data-act="menu" data-id="' + t.id + '" aria-haspopup="menu" aria-expanded="' + menu + '" aria-label="Task menu: ' + esc(t.t) + '">' + svg('more') + '</button></div>' +
       '<small>' + esc(t.role) + (t.person !== 'Unassigned' ? ' · ' + esc(t.person) : '') + '</small>' +
-      '<small class="b-task__m">' + svg('file') + esc(t.code) + (t.par ? ' <span class="b-par">Parallel review</span>' : '') + '</small>' +
+      '<small class="b-task__m">' + svg('file') + esc(t.code) + '</small>' +
       '<small class="b-task__m">' + svg('clock') + esc(t.dur) + '</small>' +
+      (pv.length ? '<small class="b-dep b-dep--prev">' + svg('prev') + '<span>After: ' + esc(names(pv)) + '</span></small>' : '') +
+      (t.next.length ? '<small class="b-dep b-dep--next">' + svg('next') + '<span>Next: ' + esc(names(t.next)) + '</span></small>' : '') +
+      (t.par.length ? '<small class="b-dep b-dep--par">' + svg('par') + '<span>Parallel with: ' + esc(names(t.par)) + '</span></small>' : '') +
       (menu ? '<ul class="b-menu" role="menu" aria-label="Task actions">' + [
         ['user', 'Assign roles', 'edit'], ['clock', 'Task duration', 'edit'],
-        ['next', 'Set next phase', 'next', p === PHASES.length - 1], ['prev', 'Set previous phase', 'prevph', p === 0],
-        ['par', t.par ? 'End parallel review' : 'Parallel review with…', 'par'], ['link', 'Edit link', 'link'], ['trash', 'Remove from workflow', 'rm']
+        ['next', 'Set next phase…', 'dep-next'], ['prev', 'Set previous phase…', 'dep-prev'], ['par', 'Parallel review with…', 'dep-par'],
+        ['grip', 'Move to another phase', 'move'], ['link', 'Edit link', 'link'], ['trash', 'Remove from workflow', 'rm']
       ].map(function (m) {
         return '<li role="none"><button type="button" role="menuitem" class="b-menu__i' + (m[2] === 'rm' ? ' is-bad' : '') + '" data-act="t-' + m[2] + '" data-id="' + t.id + '"' + (m[3] ? ' disabled' : '') + '>' + svg(m[0]) + m[1] + '</button></li>';
       }).join('') + '</ul>' : '') +
@@ -649,20 +699,72 @@
     '</form></li>';
   }
 
+  var DEP = {
+    next: ['Set next phase', 'Which tasks start when “%” is done?', 'Next'],
+    prev: ['Set previous phase', 'Which tasks must be done before “%”?', 'After'],
+    par: ['Parallel review with', 'Which tasks run at the same time as “%”?', 'Parallel with']
+  };
+
+  function depForm(t, kind) {
+    var cur = kind === 'next' ? t.next : kind === 'prev' ? prevOf(t) : t.par, p = phaseOf(t.ph);
+    var defPh = kind === 'next' ? PHASES[Math.min(p + 1, PHASES.length - 1)].k : kind === 'prev' ? PHASES[Math.max(p - 1, 0)].k : t.ph;
+    var others = curBoard().filter(function (x) { return x.id !== t.id; });
+    return '<li class="b-task b-assign"><form data-form="dep" data-id="' + t.id + '" data-kind="' + kind + '" aria-label="' + DEP[kind][0] + ' for ' + esc(t.t) + '">' +
+      '<p class="b-assign__t">' + DEP[kind][0] + '</p>' +
+      '<p class="hd-muted">' + esc(DEP[kind][1].replace('%', t.t)) + ' Choose from this workflow, or create a new task.</p>' +
+      '<div class="b-pick">' + PHASES.map(function (ph) {
+        var l = others.filter(function (x) { return x.ph === ph.k; });
+        if (!l.length) return '';
+        return '<fieldset style="--c:' + ph.c + '"><legend>' + esc(ph.t) + '</legend>' + l.map(function (x) {
+          return '<label><input type="checkbox" name="pick" value="' + x.id + '"' + (cur.indexOf(x.id) !== -1 ? ' checked' : '') + '><span>' + esc(x.t) + '</span></label>';
+        }).join('') + '</fieldset>';
+      }).join('') + (others.length ? '' : '<p class="hd-muted">No other tasks in this workflow yet.</p>') + '</div>' +
+      '<p class="b-pick__new">+ Create new</p>' +
+      '<label class="hd-f"><span>New task name</span><input name="newt" placeholder="For example: Noise protection review" autocomplete="off"></label>' +
+      '<label class="hd-f"><span>In phase</span><select name="newph">' + opt(PHASES.map(function (x) { return [x.k, x.t]; }), defPh) + '</select></label>' +
+      '<div class="b-assign__a"><button type="submit" class="hd-btn hd-btn--sm">Apply</button><button type="button" class="hd-btn hd-btn--sm hd-btn--ghost" data-act="depcancel">Cancel</button></div>' +
+    '</form></li>';
+  }
+
+  function applyDep(t, kind, chosen) {
+    var b = curBoard(), skipped = 0;
+    if (kind === 'next') {
+      var pv = prevOf(t);
+      t.next = chosen.filter(function (i) { if (pv.indexOf(i) !== -1) { skipped++; return false; } return true; });
+    } else if (kind === 'prev') {
+      chosen = chosen.filter(function (i) { if (t.next.indexOf(i) !== -1) { skipped++; return false; } return true; });
+      b.forEach(function (x) {
+        x.next = x.next.filter(function (n) { return n !== t.id; });
+        if (chosen.indexOf(x.id) !== -1) x.next.push(t.id);
+      });
+    } else {
+      b.forEach(function (x) {
+        if (x.id === t.id) return;
+        x.par = x.par.filter(function (n) { return n !== t.id; });
+        if (chosen.indexOf(x.id) !== -1) x.par.push(t.id);
+      });
+      t.par = chosen.slice();
+    }
+    return skipped;
+  }
+
   function editorView() {
     var b = curBoard(), draft = isDraft(), r = libRow(S.wf);
-    return '<div class="b-bar"><p class="b-crumb b-grow">' + esc(S.wf) + ' · S21 / BSW-01 · ' + esc(r ? r.desc : '') + ' · ' + (r ? r.st : '') + '</p>' +
+    return '<div class="b-bar"><p class="b-crumb b-grow">' + esc(S.wf) + ' · ' + esc(r ? r.desc : '') + ' · ' + (r ? r.st : '') + ' · ' + (r ? switchBtn(r, HOME) : '') + ' <span class="hd-muted">on S21 · BSW-01</span></p>' +
         '<button type="button" class="hd-btn" data-act="addtask" data-v="prep">Add new task</button>' +
         (draft ? '<button type="button" class="hd-btn b-orange" data-act="savewf">Save workflow</button>' : '') + '</div>' +
-      '<div class="b-board" role="list" aria-label="Workflow phases">' + PHASES.map(function (p) {
-        var list = b.filter(function (t) { return t.ph === p.k; });
+      (moving && findTask(moving) ? '<p class="b-moving" role="status">' + svg('grip') + '<span>Moving <b>“' + esc(findTask(moving).t) + '”</b>. Choose a phase with Move here, or press Esc.</span>' +
+        '<button type="button" class="hd-link" data-act="movecancel">Cancel</button></p>' : '') +
+      '<div class="b-board' + (moving ? ' is-moving' : '') + '" role="list" aria-label="Workflow phases">' + PHASES.map(function (p) {
+        var list = b.filter(function (t) { return t.ph === p.k; }), mt = moving && findTask(moving);
         return '<section class="b-col" role="listitem" style="--c:' + p.c + '" aria-label="' + esc(p.t) + '" data-drop="' + p.k + '">' +
           '<p class="b-col__h">' + esc(p.t) + ' <span>' + list.length + '</span></p>' +
+          (mt && mt.ph !== p.k ? '<button type="button" class="b-drophere" data-act="dropto" data-v="' + p.k + '">Move here</button>' : '') +
           '<ul class="b-col__l">' + list.map(taskCard).join('') + '</ul>' +
           '<button type="button" class="b-add" data-act="addtask" data-v="' + p.k + '">+ Add task</button>' +
         '</section>';
       }).join('') + '</div>' +
-      '<p class="hd-foot">Drag a task to another phase, or open its menu (⋯) to assign roles, set the duration, move it between phases or run a parallel review.' + (draft ? ' Saving a draft is not a submission, signature or approval.' : '') + '</p>';
+      '<p class="hd-foot">To move a task, drag it, or tap its handle and then Move here. Open its menu (⋯) to assign roles, set the duration, and choose next, previous and parallel tasks.' + (draft ? ' Saving a draft is not a submission, signature or approval.' : '') + '</p>';
   }
 
   function render4() {
@@ -730,7 +832,7 @@
     1: '.hd-panel--center .hd-btn',
     2: '[data-act="pdf"], .b-files [data-go="4"]',
     3: '[data-act="applymap"]:not(.hd-btn--done), [data-act="create"], .b-create [data-go="4"]',
-    4: '[data-act="assignwf"]:not([disabled]), [data-act="openwf"]',
+    4: '[data-act="assignwf"]:not([disabled]), [data-act="actwf"], [data-act="openwf"]',
     5: '[data-act="done"]'
   };
   var touched = {};
@@ -770,7 +872,7 @@
       t.setAttribute('role', 'status');
       document.body.appendChild(t);
     }
-    t.innerHTML = '<span class="hd-toast__ok" aria-hidden="true">✓</span>' + esc(msg);
+    t.innerHTML = '<span class="hd-toast__ok' + (info ? ' b-toast-info' : '') + '" aria-hidden="true">' + (info ? 'i' : '✓') + '</span>' + esc(msg);
     t.classList.add('is-on');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.classList.remove('is-on'); }, 3200);
@@ -1107,7 +1209,7 @@
     1: ['What needs my attention today?', 'How far along is the package?', 'Which documents have no workflow?'],
     2: ['Which document should I use as source?', 'What happens to the source file?', 'Which documents have no workflow?'],
     3: ['Is the mapping complete?', 'How do rail and DEGES layouts differ?', 'Can I download the PDF?', 'What do I do after creating?'],
-    4: ['Which workflow fits the road documents?', 'Who is responsible in each phase?', 'Is any task unassigned?'],
+    4: ['Which workflow fits the road documents?', 'How do I activate a workflow for a project?', 'How do I link tasks or run them in parallel?', 'Is any task unassigned?'],
     5: ['Who needs to act next?', 'Is anything overdue?', 'What happens if I return a task?']
   };
 
@@ -1164,9 +1266,22 @@
       if (!(S.assigned.rail && S.assigned.road)) return 'Assign the workflows in step 04: rail to WF-B01, road to WF-S02. Until then the new documents count as "Coordination needed".';
       return 'You are done here. Both packages are in review; follow the tasks in step 05.';
     }
+    if (/activ|deactiv|switch on|switch off|enable|disable/.test(ql)) {
+      var ons = S.lib.filter(function (r) { return r.board && r.act && r.act[HOME]; }).map(function (r) { return r.id; });
+      var offs = S.lib.filter(function (r) { return r.board && !(r.act && r.act[HOME]); }).map(function (r) { return r.id; });
+      return 'Open Library, pick the project at the top and use the Active switch on the workflow. On S21 · BSW-01, ' + (ons.length ? list(ons) + (ons.length === 1 ? ' is' : ' are') + ' active' : 'nothing is active') +
+        (offs.length ? ' and ' + list(offs) + (offs.length === 1 ? ' is' : ' are') + ' inactive' : '') + '. Drafts must be saved first, and a workflow with open tasks stays active until they are done.';
+    }
     if (/road|which workflow|fits/.test(ql)) {
       return S.assigned.road ? 'The road documents already run in WF-S02 (Road / DEGES document review).'
-        : 'WF-S02, the DEGES document review template. It has the same four phases as the rail workflow, so the reviewers see a familiar route. Use "Use template" under Active workflows.';
+        : 'WF-S02, the DEGES document review template. It has the same four phases as the rail workflow, so the reviewers see a familiar route.' +
+          (isActive('WF-S02') ? ' Use "Use template" under Active workflows.' : ' It is active on BSW-02 and BSW-03 but not yet here: press "Activate for BSW-01", then "Use template".');
+    }
+    if (/depend|parallel|previous|link/.test(ql)) {
+      b = curBoard();
+      var pl = b.filter(function (t) { return t.par.length; }).map(function (t) { return t.t; });
+      return 'Open a task menu (⋯) and choose Set next phase, Set previous phase or Parallel review with. Tick the tasks from this workflow, or type a name under Create new. In ' + S.wf + ', ' +
+        (pl.length ? list(pl) + ' run in parallel.' : 'no tasks run in parallel yet.');
     }
     if (/responsible|who is|phase/.test(ql)) {
       b = curBoard();
@@ -1270,6 +1385,7 @@
 
   function assignWf(k) {
     if (!S.created || S.assigned[k]) return;
+    if (!isActive(WFS[k].id)) { toast(WFS[k].id + ' is not active on S21 · BSW-01. Activate it first.', true); return; }
     S.assigned[k] = true;
     var w = WFS[k], nos = TARGETS.filter(function (t) { return t.side === k; }).map(function (t) { return t.no; });
     S.tasks.push({ id: 'n' + (S.seq++), wf: w.id, st: 'Send for review', no: nos[0] + ' +2', docs: nos, disc: 'ING', type: k === 'rail' ? 'Rail package' : 'DEGES package',
@@ -1324,33 +1440,54 @@
         S.pview = val; save(); render3(); focusAfter('#hd-3 .b-tool.is-on'); return;
       case 'create': createDocs(); return;
       case 'pdfpkg': makePdf('package'); return;
-      case 'wview': S.wview = val; S.menu = ''; S.edit = ''; save(); render4(); focusAfter('#hd-4 .b-tab.is-on'); return;
+      case 'wview': S.wview = val; S.menu = ''; S.edit = ''; dep = null; moving = ''; save(); render4(); focusAfter('#hd-4 .b-tab.is-on'); return;
       case 'assignwf': assignWf(val); return;
+      case 'toggle': case 'actwf':
+        var tr = libRow(id), tp = act === 'actwf' ? HOME : val;
+        if (!tr || !tr.board) return;
+        if (tr.st === 'Draft') { toast('Save ' + id + ' before activating it', true); return; }
+        tr.act = tr.act || {};
+        var turnOn = act === 'actwf' ? true : !tr.act[tp];
+        if (!turnOn && tp === HOME && openOn(id)) {
+          toast(id + ' has ' + openOn(id) + ' open task' + (openOn(id) === 1 ? '' : 's') + ' on BSW-01. Finish them before deactivating.', true);
+          return;
+        }
+        tr.act[tp] = turnOn; save(); render4();
+        toast(id + (turnOn ? ' activated' : ' deactivated') + ' on ' + projName(tp));
+        focusAfter('#hd-4 [data-act="' + (act === 'actwf' ? 'assignwf' : 'toggle') + '"]' + (act === 'actwf' ? '' : '[data-id="' + id + '"]'));
+        return;
       case 'openwf':
         if (!S.boards[id]) { toast('Only workflows can be opened in the editor', true); return; }
         S.wf = id; S.wview = 'editor'; S.menu = ''; S.edit = ''; save(); render4(); scrollToApp(4); return;
       case 'newwf':
         var nid = 'WF-S0' + S.draftN++;
-        S.boards[nid] = [{ id: 'd' + (S.seq++), ph: 'prep', t: 'Review target documents for DEGES', role: 'Planning coordinator (GC)', person: 'Gerda Bauer', code: '01', dur: '2 days after assignment', docs: DOCSETS[0], par: false }];
-        S.lib.unshift({ id: nid, desc: 'DEGES · Glare screen document review', type: 'Created manually', proj: 'S21 · BSW-01', st: 'Draft', board: nid, on: '16.11.2026' });
+        S.boards[nid] = [{ id: 'd' + (S.seq++), ph: 'prep', t: 'Review target documents for DEGES', role: 'Planning coordinator (GC)', person: 'Gerda Bauer', code: '01', dur: '2 days after assignment', docs: DOCSETS[0], next: [], par: [] }];
+        S.lib.unshift({ id: nid, desc: 'DEGES · Glare screen document review', type: 'Created manually', st: 'Draft', act: {}, board: nid, on: '16.11.2026' });
         S.wf = nid; S.wview = 'editor'; S.menu = ''; S.edit = ''; save(); render4(); scrollToApp(4);
         toast('Draft ' + nid + ' created. Add tasks, then save.');
         return;
       case 'savewf':
-        var row = libRow(S.wf); if (row) row.st = 'Saved draft';
-        S.wview = 'library'; save(); render4();
-        toast(S.wf + ' saved as a draft · not a submission, signature or approval');
+        var row = libRow(S.wf); if (row) row.st = 'Saved';
+        S.wview = 'library'; S.lshow = 'all'; save(); render4();
+        toast(S.wf + ' saved · switch it on for a project in the library. Saving is not a submission, signature or approval.');
         return;
       case 'dupwf':
         var src = libRow(id); if (!src || !S.boards[id]) return;
         var did = id + '-C' + (S.lib.filter(function (r) { return r.id.indexOf(id + '-C') === 0; }).length + 1);
-        S.boards[did] = JSON.parse(JSON.stringify(S.boards[id])).map(function (x) { x.id = 'c' + (S.seq++); return x; });
-        S.lib.unshift({ id: did, desc: src.desc + ' (copy)', type: 'Duplicated', proj: src.proj, st: 'Draft', board: did, on: '16.11.2026' });
+        var idmap = {}, copy = JSON.parse(JSON.stringify(S.boards[id]));
+        copy.forEach(function (x) { idmap[x.id] = 'c' + (S.seq++); });
+        copy.forEach(function (x) {
+          x.id = idmap[x.id];
+          x.next = (x.next || []).map(function (n) { return idmap[n]; }).filter(Boolean);
+          x.par = (x.par || []).map(function (n) { return idmap[n]; }).filter(Boolean);
+        });
+        S.boards[did] = copy;
+        S.lib.unshift({ id: did, desc: src.desc + ' (copy)', type: 'Duplicated', st: 'Saved', act: {}, board: did, on: '16.11.2026' });
         save(); render4(); toast(did + ' created · phases and roles copied, no approvals or signatures');
         return;
       case 'delwf':
         var dr = libRow(id);
-        if (dr && dr.st === 'Active') { toast(id + ' is active and cannot be deleted', true); return; }
+        if (dr && dr.board && activeIn(dr).length) { toast(id + ' is active on ' + activeIn(dr).join(', ') + '. Deactivate it before deleting.', true); return; }
         if (!confirm('Delete ' + id + ' from the library?')) return;
         S.lib = S.lib.filter(function (r) { return r.id !== id; });
         if (S.boards[id]) delete S.boards[id];
@@ -1361,7 +1498,7 @@
         if (S.menu) focusAfter('#hd-4 .b-menu [role="menuitem"]:not([disabled])');
         return;
       case 'addtask':
-        var nt = { id: 'x' + (S.seq++), ph: val, t: 'New task', role: ROLES[0], person: 'Unassigned', code: '—', dur: '5 days', docs: DOCSETS[0], par: false };
+        var nt = newTask(val, 'New task'); nt.code = '—';
         S.boards[S.wf].push(nt); S.edit = nt.id; S.menu = ''; save(); render4();
         focusAfter('#hd-4 [data-form="assign"] input[name="t"]');
         return;
@@ -1370,16 +1507,33 @@
         if (t && t.t === 'New task' && t.code === '—') S.boards[S.wf] = curBoard().filter(function (x) { return x.id !== t.id; });
         S.edit = ''; save(); render4(); return;
       case 't-edit': S.edit = id; S.menu = ''; render4(); focusAfter('#hd-4 [data-form="assign"] select[name="role"]'); return;
-      case 't-next': case 't-prevph':
-        t = findTask(id); var p = phaseOf(t.ph) + (act === 't-next' ? 1 : -1);
-        if (p < 0 || p >= PHASES.length) return;
-        t.ph = PHASES[p].k; S.menu = ''; save(); render4(); toast('“' + t.t + '” moved to ' + PHASES[p].t); return;
-      case 't-par': t = findTask(id); t.par = !t.par; S.menu = ''; save(); render4(); toast(t.par ? 'Parallel review on for “' + t.t + '”' : 'Parallel review off'); return;
+      case 't-dep-next': case 't-dep-prev': case 't-dep-par':
+        dep = { id: id, kind: act.slice(6) }; S.menu = ''; S.edit = ''; moving = ''; render4();
+        focusAfter('#hd-4 [data-form="dep"] input');
+        return;
+      case 'depcancel': var dc = dep && dep.id; dep = null; render4(); if (dc) focusAfter('#hd-4 [data-act="menu"][data-id="' + dc + '"]'); return;
+      case 't-move': case 'pick':
+        moving = moving === id ? '' : id; S.menu = ''; dep = null; render4();
+        focusAfter(moving ? '#hd-4 .b-drophere' : '#hd-4 [data-act="pick"][data-id="' + id + '"]');
+        return;
+      case 'movecancel': var mc = moving; moving = ''; render4(); focusAfter('#hd-4 [data-act="pick"][data-id="' + mc + '"]'); return;
+      case 'dropto':
+        t = findTask(moving); moving = '';
+        if (!t) { render4(); return; }
+        t.ph = val; save(); render4();
+        toast('“' + t.t + '” moved to ' + PHASES[phaseOf(val)].t);
+        focusAfter('#hd-4 [data-act="pick"][data-id="' + t.id + '"]');
+        return;
       case 't-link': S.menu = ''; render4(); toast('Links connect a task to drawings and the project plan in the full product', true); return;
       case 't-rm':
         t = findTask(id);
         if (!confirm('Remove “' + t.t + '” from this workflow?')) return;
-        S.boards[S.wf] = curBoard().filter(function (x) { return x.id !== id; }); S.menu = ''; save(); render4(); toast('Task removed'); return;
+        S.boards[S.wf] = curBoard().filter(function (x) { return x.id !== id; });
+        S.boards[S.wf].forEach(function (x) {
+          x.next = x.next.filter(function (n) { return n !== id; });
+          x.par = x.par.filter(function (n) { return n !== id; });
+        });
+        S.menu = ''; save(); render4(); toast('Task removed, with its links'); return;
       case 'done': case 'return': case 'reopen':
         S.tasks.forEach(function (x) { if (x.id === id) { t = x; x.state = act === 'done' ? 'done' : act === 'return' ? 'returned' : 'open'; } });
         save(); render1(); render5(); pulse();
@@ -1408,6 +1562,7 @@
       var k = t.getAttribute('data-sel');
       if (k === 'show') { S.show = t.value; save(); renderFiles(); }
       if (k === 'tf') { S.tf = t.value; save(); renderTasks(); }
+      if (k === 'proj' || k === 'lshow') { S[k] = t.value; save(); render4(); focusAfter('#hd-4 [data-sel="' + k + '"]'); }
       if (k === 'tpl') { S.map.tpl = t.value; S.mapped = false; save(); render3(); focusAfter('#hd-3 [data-sel="tpl"]'); }
     }
   }
@@ -1420,6 +1575,19 @@
       S.mapped = true; save(); render3(); pulse();
       toast('Mapping applied to 4 fields');
       focusAfter('#hd-3 [data-act="create"], #hd-3 .b-create [data-go]');
+      return;
+    }
+    if (f.getAttribute('data-form') === 'dep') {
+      var dt = findTask(f.getAttribute('data-id')), kind = f.getAttribute('data-kind');
+      if (!dt) return;
+      var chosen = Array.prototype.filter.call(f.querySelectorAll('input[name="pick"]'), function (c) { return c.checked; }).map(function (c) { return c.value; });
+      var nn = f.querySelector('input[name="newt"]').value.trim(), made = null;
+      if (nn) { made = newTask(f.querySelector('select[name="newph"]').value, nn); S.boards[S.wf].push(made); chosen.push(made.id); }
+      var skipped = applyDep(dt, kind, chosen);
+      dep = null; save(); render4();
+      var lst = kind === 'next' ? dt.next : kind === 'prev' ? prevOf(dt) : dt.par;
+      toast('“' + dt.t + '” · ' + DEP[kind][2] + ': ' + (lst.length ? names(lst) : 'none') + (made ? ' · new task created' : '') + (skipped ? ' · ' + skipped + ' skipped to avoid a loop' : ''));
+      focusAfter('#hd-4 [data-act="menu"][data-id="' + dt.id + '"]');
       return;
     }
     var t = findTask(f.getAttribute('data-id'));
@@ -1437,6 +1605,8 @@
     if (e.key !== 'Escape') return;
     if (bellOpen) { var bs = bellOpen; bellOpen = 0; RENDER[bs](); focusAfter('#hd-' + bs + ' [data-act="bell"]'); return; }
     if (S.menu) { var id = S.menu; S.menu = ''; render4(); focusAfter('#hd-4 [data-act="menu"][data-id="' + id + '"]'); }
+    else if (moving) { var mv = moving; moving = ''; render4(); focusAfter('#hd-4 [data-act="pick"][data-id="' + mv + '"]'); }
+    else if (dep) { var dd = dep.id; dep = null; render4(); focusAfter('#hd-4 [data-act="menu"][data-id="' + dd + '"]'); }
     else if (S.edit) { S.edit = ''; render4(); }
   });
   document.addEventListener('click', function (e) {
@@ -1485,6 +1655,8 @@
     var col = dragId && e.target.closest('[data-drop]');
     if (!col) return;
     e.preventDefault();
+    var bd = col.closest('.b-board'), r = bd.getBoundingClientRect();
+    if (e.clientX > r.right - 60) bd.scrollLeft += 14; else if (e.clientX < r.left + 60) bd.scrollLeft -= 14;
     document.querySelectorAll('#hd-4 .b-col.is-over').forEach(function (c) { if (c !== col) c.classList.remove('is-over'); });
     col.classList.add('is-over');
   });
@@ -1495,7 +1667,7 @@
     var t = findTask(dragId), ph = col.getAttribute('data-drop');
     dragId = '';
     if (!t || t.ph === ph) { render4(); return; }
-    t.ph = ph; S.menu = ''; save(); render4();
+    t.ph = ph; S.menu = ''; moving = ''; save(); render4();
     toast('“' + t.t + '” moved to ' + PHASES[phaseOf(ph)].t);
   });
   host.addEventListener('dragend', function () {
