@@ -98,7 +98,9 @@
       draftN: 3,
       menu: '', edit: '', seq: 100,
       tasks: JSON.parse(JSON.stringify(BASE_TASKS)),
-      tq: '', tf: 'open'
+      tq: '', tf: 'open',
+      sort: { files: ['', 1], tasks: ['', 1] },
+      log: [], seen: 0
     };
   }
 
@@ -219,7 +221,10 @@
     prev: 'M19 12H5M11 6l-6 6 6 6',
     par: 'M8 4v16M16 4v16',
     link: 'M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1',
-    warn: 'M12 3l10 18H2zM12 10v5M12 18h.01'
+    warn: 'M12 3l10 18H2zM12 10v5M12 18h.01',
+    spark: 'M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z',
+    grip: 'M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01',
+    sort: 'M8 9l4-4 4 4M8 15l4 4 4-4'
   };
   function svg(name, cls) {
     return '<svg class="' + (cls || 'hd-ico') + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + ICON[name] + '"/></svg>';
@@ -253,11 +258,24 @@
     '</nav>';
   }
 
-  function top(title, sub) {
+  var bellOpen = 0;
+  function bell(step) {
+    var n = Math.max(0, S.log.length - S.seen), open = bellOpen === step;
+    return '<span class="b-bellwrap"><button type="button" class="hd-bell b-bellbtn" data-act="bell" data-v="' + step + '" aria-expanded="' + open + '" aria-label="Activity' + (n ? ', ' + n + ' new' : '') + '">' + svg('bell') +
+        (n ? '<em class="b-bell__n" aria-hidden="true">' + n + '</em>' : '') + '</button>' +
+      (open ? '<div class="b-bellpop" role="region" aria-label="Activity"><p class="b-bellpop__h"><b>Activity</b>' +
+          (S.log.length ? '<button type="button" class="hd-link" data-act="clearlog">Clear</button>' : '') + '</p>' +
+        (S.log.length ? '<ul>' + S.log.map(function (l) { return '<li><span>' + esc(l.t) + '</span><small>Today, ' + l.at + '</small></li>'; }).join('') + '</ul>'
+                      : '<p class="hd-muted b-bellpop__e">Nothing yet. What you do in the demo shows up here.</p>') + '</div>' : '') +
+    '</span>';
+  }
+
+  function top(title, sub, step) {
     return '<header class="hd-top">' +
       '<div class="hd-top__t"><div><p class="hd-top__title">' + title + '</p>' + (sub ? '<p class="hd-top__sub">' + sub + '</p>' : '') + '</div></div>' +
       '<div class="hd-top__r">' +
-        '<span class="hd-bell" aria-hidden="true">' + svg('bell') + '</span>' +
+        '<button type="button" class="hd-aibtn" data-act="ai">' + svg('spark') + '<span>Higherd AI</span></button>' +
+        bell(step) +
         '<span class="hd-user"><img class="hd-user__av hd-user__av--img" src="/assets/img/uc05/gerda-bauer.webp?v=2" alt="" width="36" height="36">' +
           '<span class="hd-user__t"><b>Gerda Bauer <span class="b-plan">Enterprise</span></b><small>Planning coordinator · GC</small></span></span>' +
       '</div>' +
@@ -271,7 +289,7 @@
         '<button type="button" class="hd-link" data-act="reset">Reset demo</button>' +
       '</div>' +
       '<div class="hd-shell">' + side(step) +
-        '<div class="hd-main">' + top(title, sub) + '<div class="hd-body">' + body + '</div></div>' +
+        '<div class="hd-main">' + top(title, sub, step) + '<div class="hd-body">' + body + '</div></div>' +
       '</div>';
   }
 
@@ -403,21 +421,37 @@
     renderFiles();
   }
 
+  function th(table, key, label) {
+    var srt = S.sort[table], on = srt[0] === key;
+    return '<th scope="col"' + (on ? ' aria-sort="' + (srt[1] > 0 ? 'ascending' : 'descending') + '"' : '') + '>' +
+      '<button type="button" class="b-sortbtn' + (on ? ' is-on' : '') + '" data-act="sort" data-v="' + table + ':' + key + '">' + label + svg('sort') + '</button></th>';
+  }
+  function sorted(list, table) {
+    var srt = S.sort[table];
+    if (!srt[0]) return list;
+    return list.slice().sort(function (a, b) {
+      var x = String(a[srt[0]] || ''), y = String(b[srt[0]] || '');
+      if (srt[0] === 'due') { x = x.split('.').reverse().join(''); y = y.split('.').reverse().join(''); }
+      return x.localeCompare(y) * srt[1];
+    });
+  }
+
   function renderFiles() {
     var box = $('#b-files'); if (!box) return;
     var q = S.q.trim().toLowerCase();
-    var list = docs().filter(function (d) {
+    var list = sorted(docs().filter(function (d) {
       if (S.show === 'src' && !d.src) return false;
       if (S.show === 'tgt' && d.src) return false;
       return !q || [d.no, d.type, d.desc, d.st, d.wf].join(' ').toLowerCase().indexOf(q) !== -1;
-    });
+    }), 'files');
     box.innerHTML = '<div class="hd-tablewrap"><table class="hd-table b-table">' +
       '<caption class="hd-sr">Documents. Choose the source revision with the radio buttons.</caption>' +
-      '<thead><tr><th scope="col">Source</th><th scope="col">WF</th><th scope="col">Drawing no.</th><th scope="col">Index</th><th scope="col">Discipline</th><th scope="col">Document type</th><th scope="col">Description</th><th scope="col">Status</th></tr></thead><tbody>' +
+      '<thead><tr><th scope="col">Source</th>' + th('files', 'wf', 'WF') + th('files', 'no', 'Drawing no.') + '<th scope="col">Index</th><th scope="col">Discipline</th>' +
+        th('files', 'type', 'Document type') + th('files', 'desc', 'Description') + th('files', 'st', 'Status') + '</tr></thead><tbody>' +
       (list.length ? list.map(function (d) {
         return '<tr class="' + (d.src ? '' : 'is-new') + (S.source === d.no ? ' is-sel' : '') + '">' +
           '<td>' + (d.src ? '<input type="radio" name="b-src" data-src="' + esc(d.no) + '" aria-label="Use ' + esc(d.no) + ' as source"' + (S.source === d.no ? ' checked' : '') + '>' : '<span class="b-new">New</span>') + '</td>' +
-          '<td>' + wfChip(d.wf) + '</td><td><b>' + esc(d.no) + '</b></td><td>' + d.idx + '</td><td>' + d.disc + '</td>' +
+          '<td>' + wfChip(d.wf) + '</td><td><button type="button" class="hd-idlink" data-act="doc" data-id="' + esc(d.no) + '">' + esc(d.no) + '</button></td><td>' + d.idx + '</td><td>' + d.disc + '</td>' +
           '<td>' + esc(d.type) + '</td><td>' + esc(d.desc) + '</td><td>' + status(d.st) + '</td></tr>';
       }).join('') : '<tr><td colspan="8" class="hd-empty">No documents match “' + esc(S.q) + '”.</td></tr>') +
       '</tbody></table></div>' +
@@ -472,7 +506,7 @@
     ];
   }
 
-  var TOOLS = [['tpl', 'Template', 'tool'], ['map', 'Mapping', 'mapping'], ['plus', 'Add field', 'tool'], ['edit', 'Edit', 'tool'], ['cmp', 'Compare', 'compare'], ['shield', 'Check', 'check'], ['pdf', 'Create PDF', 'create'], ['exp', 'Export', 'tool'], ['flow', 'Workflow', 'wf']];
+  var TOOLS = [['tpl', 'Template', 'tool'], ['map', 'Mapping', 'mapping'], ['plus', 'Add field', 'tool'], ['edit', 'Edit', 'tool'], ['cmp', 'Compare', 'compare'], ['shield', 'Check', 'check'], ['pdf', 'Create PDF', 'create'], ['exp', 'Export', 'export'], ['flow', 'Workflow', 'wf']];
 
   function render3() {
     var el = $('#hd-3'); if (!el) return;
@@ -510,7 +544,7 @@
         ? '<b class="hd-ok">✓ 6 target documents created</b> · 3 rail, 3 road · linked to ' + esc(S.source) + ' / A'
         : '6 target documents: title block, cover sheet and form, for rail and road · technical review pending') + '</p>' +
       (S.created
-        ? '<button type="button" class="hd-btn" data-go="4">Select workflow →</button>'
+        ? '<span class="b-create__a"><button type="button" class="hd-btn hd-btn--ghost" data-act="pdfpkg">Download PDF package</button><button type="button" class="hd-btn" data-go="4">Select workflow →</button></span>'
         : '<button type="button" class="hd-btn" data-act="create">Create documents</button>') + '</div>';
 
     var ints = ['DB InfraGO', 'PlanRadar', 'SharePoint', 'iTWO', 'Revit', 'BIM 360'];
@@ -584,8 +618,8 @@
   function taskCard(t, i) {
     var menu = S.menu === t.id, edit = S.edit === t.id, p = phaseOf(t.ph);
     if (edit) return assignForm(t);
-    return '<li class="b-task" style="--c:' + PHASES[p].c + '">' +
-      '<div class="b-task__h"><b>' + esc(t.t) + '</b>' +
+    return '<li class="b-task" style="--c:' + PHASES[p].c + '" draggable="true" data-drag="' + t.id + '">' +
+      '<div class="b-task__h"><span class="b-grip" aria-hidden="true" title="Drag to another phase">' + svg('grip') + '</span><b>' + esc(t.t) + '</b>' +
         '<button type="button" class="b-more" data-act="menu" data-id="' + t.id + '" aria-haspopup="menu" aria-expanded="' + menu + '" aria-label="Task menu: ' + esc(t.t) + '">' + svg('more') + '</button></div>' +
       '<small>' + esc(t.role) + (t.person !== 'Unassigned' ? ' · ' + esc(t.person) : '') + '</small>' +
       '<small class="b-task__m">' + svg('file') + esc(t.code) + (t.par ? ' <span class="b-par">Parallel review</span>' : '') + '</small>' +
@@ -622,13 +656,13 @@
         (draft ? '<button type="button" class="hd-btn b-orange" data-act="savewf">Save workflow</button>' : '') + '</div>' +
       '<div class="b-board" role="list" aria-label="Workflow phases">' + PHASES.map(function (p) {
         var list = b.filter(function (t) { return t.ph === p.k; });
-        return '<section class="b-col" role="listitem" style="--c:' + p.c + '" aria-label="' + esc(p.t) + '">' +
+        return '<section class="b-col" role="listitem" style="--c:' + p.c + '" aria-label="' + esc(p.t) + '" data-drop="' + p.k + '">' +
           '<p class="b-col__h">' + esc(p.t) + ' <span>' + list.length + '</span></p>' +
           '<ul class="b-col__l">' + list.map(taskCard).join('') + '</ul>' +
           '<button type="button" class="b-add" data-act="addtask" data-v="' + p.k + '">+ Add task</button>' +
         '</section>';
       }).join('') + '</div>' +
-      '<p class="hd-foot">Open a task menu (⋯) to assign roles, set the duration, move it between phases or run a parallel review.' + (draft ? ' Saving a draft is not a submission, signature or approval.' : '') + '</p>';
+      '<p class="hd-foot">Drag a task to another phase, or open its menu (⋯) to assign roles, set the duration, move it between phases or run a parallel review.' + (draft ? ' Saving a draft is not a submission, signature or approval.' : '') + '</p>';
   }
 
   function render4() {
@@ -669,14 +703,14 @@
   function renderTasks() {
     var box = $('#b-tasks'); if (!box) return;
     var q = S.tq.trim().toLowerCase();
-    var list = S.tasks.filter(function (t) {
+    var list = sorted(S.tasks.filter(function (t) {
       if (S.tf !== 'all' && t.state !== S.tf) return false;
       return !q || [t.wf, t.st, t.no, t.type, t.desc].join(' ').toLowerCase().indexOf(q) !== -1;
-    });
-    box.innerHTML = '<div class="hd-tablewrap"><table class="hd-table b-table"><thead><tr><th>WF</th><th>Task status</th><th>Drawing no.</th><th>Document type</th><th>Description</th><th>Due date</th><th>Actions</th></tr></thead><tbody>' +
+    }), 'tasks');
+    box.innerHTML = '<div class="hd-tablewrap"><table class="hd-table b-table"><thead><tr>' + th('tasks', 'wf', 'WF') + th('tasks', 'st', 'Task status') + th('tasks', 'no', 'Drawing no.') + th('tasks', 'type', 'Document type') + th('tasks', 'desc', 'Description') + th('tasks', 'due', 'Due date') + '<th scope="col">Actions</th></tr></thead><tbody>' +
       (list.length ? list.map(function (t) {
         var st = t.state === 'done' ? status('Completed') : t.state === 'returned' ? status('Returned') : '<span class="b-st b-st--task">' + esc(t.st) + '</span>';
-        return '<tr><td>' + wfChip(t.wf) + '</td><td>' + st + '</td><td><b>' + esc(t.no) + '</b></td><td>' + esc(t.type) + '</td>' +
+        return '<tr><td>' + wfChip(t.wf) + '</td><td>' + st + '</td><td><button type="button" class="hd-idlink" data-act="doc" data-id="' + esc(t.no.split(' ')[0]) + '">' + esc(t.no) + '</button></td><td>' + esc(t.type) + '</td>' +
           '<td class="b-wrap">' + esc(t.desc) + '</td><td>' + t.due + '</td><td class="b-icons">' +
           '<button type="button" class="b-ib" data-act="finddoc" data-id="' + esc(t.no.split(' ')[0]) + '" aria-label="Open ' + esc(t.no) + ' in the document manager">' + svg('eye') + '</button>' +
           (t.state === 'open'
@@ -721,7 +755,13 @@
   }
 
   var toastTimer;
-  function toast(msg) {
+  function stamp() { var d = new Date(); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function toast(msg, info) {
+    if (!info) {
+      S.log.unshift({ t: msg, at: stamp() }); S.log = S.log.slice(0, 12);
+      if (S.seen > S.log.length) S.seen = S.log.length;
+      save(); refreshBells();
+    }
     var t = document.getElementById('hd-toast');
     if (!t) {
       t = document.createElement('div');
@@ -740,6 +780,486 @@
   // Actions
   // =========================================================
   function renderAll() { render1(); render2(); render3(); render4(); render5(); pulse(); }
+  var RENDER = [null, function () { render1(); }, function () { render2(); }, function () { render3(); }, function () { render4(); }, function () { render5(); }];
+
+  // Only the bell badges change when something is logged
+  function refreshBells() {
+    var n = Math.max(0, S.log.length - S.seen);
+    document.querySelectorAll('#journey .b-bellbtn').forEach(function (b) {
+      var em = b.querySelector('.b-bell__n');
+      if (n && !em) { em = document.createElement('em'); em.className = 'b-bell__n'; em.setAttribute('aria-hidden', 'true'); b.appendChild(em); }
+      if (em) { if (n) em.textContent = n; else em.remove(); }
+      b.setAttribute('aria-label', 'Activity' + (n ? ', ' + n + ' new' : ''));
+    });
+  }
+
+  // =========================================================
+  // Real PDFs, built in the browser with jsPDF (js/vendor).
+  // Nothing is uploaded: the file is made on the visitor's device.
+  // =========================================================
+  var pdfReady = null, pdfBusy = false;
+  function pdfLib() {
+    if (window.jspdf) return Promise.resolve(window.jspdf.jsPDF);
+    if (!pdfReady) {
+      pdfReady = new Promise(function (ok, fail) {
+        var sc = document.createElement('script');
+        sc.src = '/js/vendor/jspdf.umd.min.js?v=1';
+        sc.onload = function () { if (window.jspdf) ok(window.jspdf.jsPDF); else fail(); };
+        sc.onerror = function () { pdfReady = null; fail(); };
+        document.head.appendChild(sc);
+      });
+    }
+    return pdfReady;
+  }
+
+  // The built-in PDF fonts cover Latin-1 only
+  function clean(t) {
+    return String(t == null ? '' : t).replace(/[–—]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x00-\xFF]/g, '?');
+  }
+  function fileName(t) { return clean(t).replace(/Ü/g, 'UE').replace(/[^A-Za-z0-9._-]+/g, '-').replace(/-+/g, '-'); }
+  function val(k) { return clean(S.map[k] || '-'); }
+
+  function pdfDraft(doc, w, h) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(70);
+    doc.setTextColor(238, 232, 252);
+    doc.text('DRAFT - DEMO', w / 2 - 95, h / 2 + 45, { angle: 28 });
+  }
+
+  function pdfFoot(doc, w, h, page) {
+    var d = new Date();
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(102, 112, 133);
+    doc.text('Higherd demo - illustrative data, not approved - created ' + d.toLocaleDateString('en-GB') + ' ' + stamp() + ' from ' + clean(S.source) + ' / A', 15, h - 8);
+    doc.text(page, w - 15, h - 8, { align: 'right' });
+  }
+
+  // Cell with a small label and a value
+  function cell(doc, x, y, w, h, label, value, opts) {
+    opts = opts || {};
+    doc.setDrawColor(52, 64, 84);
+    doc.setLineWidth(0.3);
+    if (opts.fill) { doc.setFillColor.apply(doc, opts.fill); doc.rect(x, y, w, h, 'FD'); } else doc.rect(x, y, w, h);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(102, 112, 133);
+    if (label) doc.text(clean(label), x + 2, y + 3.8);
+    doc.setFont('helvetica', opts.bold ? 'bold' : 'normal');
+    doc.setFontSize(opts.size || 9);
+    doc.setTextColor.apply(doc, opts.color || [16, 24, 40]);
+    if (value) {
+      var lines = doc.splitTextToSize(clean(value), w - 4);
+      doc.text(lines, x + 2, y + (label ? 8.5 : 5.5));
+    }
+    if (opts.mapped) {
+      doc.setDrawColor(74, 15, 168);
+      doc.setLineWidth(0.6);
+      doc.rect(x + 1, y + (label ? 5 : 1), w - 2, h - (label ? 6 : 2));
+    }
+  }
+
+  // Rail: client title block (A4 landscape)
+  function pdfTitleBlock(doc, heading, page) {
+    var W = 297, H = 210, x = 15, y = 15, w = 267;
+    pdfDraft(doc, W, H);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(74, 15, 168);
+    doc.text(clean(heading).toUpperCase(), x, 11);
+
+    var c3 = w / 3;
+    cell(doc, x, y, c3, 22, 'Client / Project team', 'Rail client\nDemonstration data');
+    cell(doc, x + c3, y, c3, 22, 'Design / Coordination', val('by') + ' - Coordination\nHigherd Demo');
+    cell(doc, x + 2 * c3, y, c3, 22, '', '');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(220, 38, 38);
+    doc.text('RAIL CLIENT', x + 2 * c3 + c3 / 2, y + 14, { align: 'center' });
+
+    y += 22;
+    doc.setFillColor(228, 231, 236); doc.setDrawColor(52, 64, 84); doc.rect(x, y, w, 36, 'FD');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(102, 112, 133);
+    doc.text('Project name / Scope description', x + 2, y + 4);
+    doc.setFontSize(19); doc.setTextColor(16, 24, 40);
+    doc.text(val('name'), x + 4, y + 13);
+    doc.setDrawColor(74, 15, 168); doc.setLineWidth(0.6); doc.rect(x + 2, y + 6, w - 4, 9.5);
+    doc.setFontSize(13); doc.text('Glare screen - BSW-01', x + 4, y + 22);
+    doc.setFontSize(7); doc.setTextColor(102, 112, 133); doc.text('Project no.:', x + 4, y + 31);
+    doc.setFontSize(10); doc.setTextColor(16, 24, 40); doc.text(val('pno'), x + 22, y + 31);
+    doc.rect(x + 20, y + 27, 50, 6);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(74, 15, 168);
+    doc.text('DRAFT - DEMO', x + w - 4, y + 31, { align: 'right' });
+
+    y += 36;
+    var rows = [['Design stage', 'Approval design', 'Station name', 'S21 - Crossing area'],
+                ['Drawing content', 'Glare screen - Layout and elevations', 'Route', 'Rail / motorway'],
+                ['Scale', '1:100', 'Route no.', '-'],
+                ['Drawing number', val('dno'), 'Chainage', '-']];
+    var cw = [42, 92, 42, 91];
+    rows.forEach(function (r, i) {
+      var cx = x;
+      r.forEach(function (v, j) {
+        cell(doc, cx, y, cw[j], 10, '', v, { color: j % 2 ? [16, 24, 40] : [71, 84, 103], mapped: i === 3 && j === 1 });
+        cx += cw[j];
+      });
+      y += 10;
+    });
+
+    var sw = [60, 90, 47, 70];
+    [['Preparation', 'Name (print)', 'Date', 'Signature'], ['Drawn', val('by'), new Date().toLocaleDateString('en-GB'), ''], ['Prepared', '-', '-', ''], ['Quality check', '-', '-', '']].forEach(function (r, i) {
+      var cx = x;
+      r.forEach(function (v, j) {
+        cell(doc, cx, y, sw[j], 9, '', v, { bold: i === 0, color: i === 0 ? [71, 84, 103] : [16, 24, 40] });
+        cx += sw[j];
+      });
+      y += 9;
+    });
+
+    cell(doc, x, y, w / 2, 32, 'Client internal quality check', 'The detailed design submission has to be reviewed by the client\'s technical quality management before approval.');
+    cell(doc, x + w / 2, y, w / 2, 32, 'Technical review record', 'Pending. Technical reviews and approvals remain with the assigned roles in the workflow.');
+    pdfFoot(doc, W, H, page);
+  }
+
+  // Road: DEGES project template cover sheet (A4 portrait)
+  function pdfCover(doc, page, title) {
+    var W = 210, H = 297, x = 22, w = 166, y = 30;
+    pdfDraft(doc, W, H);
+    doc.setDrawColor(234, 236, 240); doc.setLineWidth(0.4); doc.rect(15, 15, 180, 262);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(71, 84, 103);
+    doc.text('ROAD - PROJECT TEMPLATE', x, y);
+    doc.setFontSize(28); doc.setTextColor(16, 24, 40); doc.text(clean(title || 'Cover sheet'), x, y + 15);
+    doc.setFontSize(16); doc.text(val('name'), x, y + 28);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(12); doc.text('Glare screen - BSW-01', x, y + 37);
+    doc.setFontSize(10); doc.setTextColor(102, 112, 133); doc.text('Approval design', x, y + 45);
+
+    y += 55;
+    [['Project', val('pno')], ['Document', 'Layout and elevations'], ['Drawing number', val('dno')], ['Prepared by', val('by') + ' - Coordination'],
+     ['Index / Revision', '01'], ['Status', 'Draft - Review pending'], ['Source revision', clean(S.source) + ' / A']].forEach(function (r) {
+      doc.setDrawColor(234, 236, 240); doc.setLineWidth(0.3); doc.rect(x, y, w, 11);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(102, 112, 133); doc.text(r[0], x + 3, y + 7);
+      doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 24, 40); doc.text(r[1], x + 55, y + 7);
+      y += 13;
+    });
+
+    y += 6;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(102, 112, 133);
+    doc.text('Based on the uploaded project template. Illustrative translation, not approved.', x, y);
+    y += 30;
+    doc.setDrawColor(152, 162, 179);
+    [['Name (print)', val('by')], ['Date', ''], ['Signature', '']].forEach(function (s, i) {
+      var sx = x + i * 58;
+      doc.line(sx, y, sx + 50, y);
+      doc.setFontSize(10); doc.setTextColor(16, 24, 40); doc.text(s[1], sx, y - 3);
+      doc.setFontSize(7.5); doc.setTextColor(102, 112, 133); doc.text(s[0], sx, y + 5);
+    });
+    pdfFoot(doc, W, H, page);
+  }
+
+  // Package register (A4 portrait)
+  function pdfRegister(doc, page) {
+    var W = 210, H = 297, x = 18, y = 26;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(74, 15, 168);
+    doc.text('HIGHERD BAU - DOCUMENT MANAGER', x, y);
+    doc.setFontSize(20); doc.setTextColor(16, 24, 40); doc.text('Submission package ' + val('pno'), x, y + 11);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(71, 84, 103);
+    doc.text(val('name') + ' - Glare screen BSW-01', x, y + 19);
+    doc.text('Source revision: ' + clean(S.source) + ' / A (unchanged)   Prepared by: ' + val('by'), x, y + 26);
+
+    y += 38;
+    var cols = [['Drawing no.', 44], ['Index', 14], ['Document', 30], ['Layout', 36], ['Workflow', 22], ['Status', 28]];
+    doc.setFillColor(248, 249, 251); doc.rect(x, y, 174, 8, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(102, 112, 133);
+    var cx = x;
+    cols.forEach(function (c) { doc.text(c[0].toUpperCase(), cx + 2, y + 5.3); cx += c[1]; });
+    y += 8;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    TARGETS.forEach(function (t) {
+      var on = S.assigned[t.side];
+      var row = [t.no, t.idx, t.type, t.side === 'rail' ? 'Rail client' : 'DEGES template', on ? WFS[t.side].id : '-', S.created ? (on ? 'In workflow' : 'Draft') : 'Not created'];
+      cx = x;
+      doc.setTextColor(16, 24, 40);
+      row.forEach(function (v, j) { doc.text(clean(v), cx + 2, y + 6); cx += cols[j][1]; });
+      doc.setDrawColor(234, 236, 240); doc.line(x, y + 9, x + 174, y + 9);
+      y += 9;
+    });
+
+    y += 12;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(16, 24, 40); doc.text('Checks', x, y);
+    y += 7;
+    checks().forEach(function (c) {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+      doc.setTextColor.apply(doc, c[0] === null ? [217, 119, 6] : c[0] ? [22, 163, 74] : [220, 38, 38]);
+      doc.text(c[0] === null ? 'PENDING' : c[0] ? 'OK' : 'FIX', x, y);
+      doc.setTextColor(16, 24, 40); doc.text(clean(c[1]), x + 20, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(102, 112, 133); doc.text(clean(c[2]), x + 20, y + 4.5);
+      y += 11;
+    });
+    pdfFoot(doc, W, H, page);
+  }
+
+  // kind: 'single' (selected template), 'package' (register + both layouts), or a target drawing number
+  function makePdf(kind) {
+    if (pdfBusy) return;
+    var bad = checks().filter(function (c) { return c[0] === false; });
+    if (bad.length) {
+      S.pview = 'check'; save(); render3(); goTo(3);
+      toast('Fix the mapping first: ' + bad[0][1].toLowerCase(), true);
+      return;
+    }
+    pdfBusy = true;
+    pdfLib().then(function (JsPDF) {
+      var doc, name, tpl = S.map.tpl, t = TARGETS.filter(function (x) { return x.no === kind; })[0];
+      if (t) tpl = t.side === 'road' ? 'deges-cover' : t.type === 'Form' ? 'rail-form' : 'rail-title';
+      if (kind === 'package') {
+        doc = new JsPDF({ unit: 'mm', format: 'a4', compress: true });
+        pdfRegister(doc, 'Page 1 / 3');
+        doc.addPage('a4', 'landscape'); pdfTitleBlock(doc, 'Rail - Title block', 'Page 2 / 3');
+        doc.addPage('a4', 'portrait'); pdfCover(doc, 'Page 3 / 3');
+        name = fileName(S.map.pno + '_submission-package') + '.pdf';
+      } else if (tpl === 'deges-cover') {
+        doc = new JsPDF({ unit: 'mm', format: 'a4', compress: true });
+        pdfCover(doc, 'Page 1 / 1', t ? t.type : 'Cover sheet');
+        name = fileName(t ? t.no + '_DEGES-' + t.type : S.map.dno + '_DEGES-cover-sheet') + '.pdf';
+      } else {
+        doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape', compress: true });
+        pdfTitleBlock(doc, t ? 'Rail - ' + t.type : tpl === 'rail-form' ? 'Rail - Form' : 'Rail - Title block', 'Page 1 / 1');
+        name = fileName(t ? t.no + '_Rail-' + t.type : S.map.dno + (tpl === 'rail-form' ? '_Rail-form' : '_Rail-title-block')) + '.pdf';
+      }
+      doc.setProperties({ title: clean(S.map.name) + ' - ' + name, author: clean(S.map.by), creator: 'Higherd demo', subject: 'Illustrative demo document, not approved' });
+      doc.save(name);
+      pdfBusy = false;
+      toast('PDF downloaded: ' + name);
+    }, function () {
+      pdfBusy = false;
+      toast('The PDF tool could not load. Check the connection and try again.', true);
+    });
+  }
+
+  // =========================================================
+  // Document details dialog
+  // =========================================================
+  function closeDialog() { var d = $('#hd-dialog'); if (d && d.open) d.close(); }
+  function docByNo(no) { var l = docs(); for (var i = 0; i < l.length; i++) if (l[i].no === no) return l[i]; return null; }
+
+  function dialog() {
+    var dlg = $('#hd-dialog');
+    if (dlg) return dlg;
+    dlg = document.createElement('dialog');
+    dlg.id = 'hd-dialog';
+    dlg.className = 'hd-dialog hd b-docdlg';
+    dlg.setAttribute('aria-labelledby', 'b-doc-t');
+    document.body.appendChild(dlg);
+    dlg.addEventListener('click', function (e) {
+      if (e.target === dlg) { dlg.close(); return; }
+      var b = e.target.closest('[data-act]');
+      if (!b) return;
+      var a = b.getAttribute('data-act'), id = b.getAttribute('data-id');
+      if (a === 'close') dlg.close();
+      if (a === 'dsrc') { S.source = id; save(); renderFiles(); openDoc(id); toast('Source revision: ' + id + ' / A'); }
+      if (a === 'dpdf') { dlg.close(); S.pview = 'mapping'; save(); render3(); goTo(3); }
+      if (a === 'dwf') { dlg.close(); S.wview = 'active'; save(); render4(); goTo(4); }
+      if (a === 'dtasks') { dlg.close(); S.tq = id; S.tf = 'all'; save(); render5(); goTo(5); }
+      if (a === 'doc') openDoc(id);
+      if (a === 'dpdfdl') makePdf(id);
+    });
+    return dlg;
+  }
+
+  function openDoc(no) {
+    var d = docByNo(no);
+    if (!d) { toast(no + ' is not in the document manager yet', true); return; }
+    var tg = TARGETS.filter(function (t) { return t.no === no; })[0];
+    var ts = S.tasks.filter(function (t) { return t.no === no || (t.docs && t.docs.indexOf(no) !== -1); });
+    var linked = d.src && S.created && no === S.source ? TARGETS : [];
+    var tplName = TEMPLATES.filter(function (t) { return t[0] === S.map.tpl; })[0][1];
+    var hist = d.src ? [['Created by Gerda Bauer', 'Revision A']] : [['Created in PDF Creator from ' + S.source + ' / A', tplName]];
+    if (d.wf) hist.unshift(['Assigned to ' + d.wf, 'Workflow']);
+    ts.filter(function (t) { return t.state !== 'open'; }).forEach(function (t) { hist.unshift([(t.state === 'done' ? 'Completed: ' : 'Returned: ') + t.desc, 'Task']); });
+
+    var dlg = dialog();
+    dlg.innerHTML =
+      '<div class="hd-dialog__h"><div><p class="hd-eyebrow">' + (d.src ? 'Source document' : 'Target document · ' + (tg.side === 'rail' ? 'Rail' : 'Road / DEGES')) + '</p>' +
+        '<p class="hd-dialog__t" id="b-doc-t">' + esc(d.no) + ' / ' + d.idx + '</p></div>' +
+        '<button type="button" class="hd-x" data-act="close" aria-label="Close">×</button></div>' +
+      '<p class="hd-dialog__p">' + esc(d.type) + ' · ' + esc(d.desc) + '</p>' +
+      '<div class="hd-stats"><div><span>Status</span><b>' + esc(d.st) + '</b></div><div><span>Workflow</span><b>' + (d.wf || '—') + '</b></div><div><span>Open tasks</span><b>' +
+        ts.filter(function (t) { return t.state === 'open'; }).length + '</b></div></div>' +
+      (linked.length ? '<p class="hd-sub">Target documents created from this revision</p><ul class="b-dlist">' + linked.map(function (t) {
+        return '<li><button type="button" class="hd-idlink" data-act="doc" data-id="' + t.no + '">' + t.no + '</button><small>' + t.desc + '</small></li>';
+      }).join('') + '</ul>' : '') +
+      '<p class="hd-sub">History</p><ol class="b-hist">' + hist.map(function (h) {
+        return '<li><b>' + esc(h[0]) + '</b><small>' + TODAY + ' · ' + esc(h[1]) + '</small></li>';
+      }).join('') + '</ol>' +
+      '<div class="hd-actions">' +
+        (d.src && S.source !== d.no ? '<button type="button" class="hd-btn hd-btn--ghost" data-act="dsrc" data-id="' + esc(d.no) + '">Use as source</button>' : '') +
+        (ts.length ? '<button type="button" class="hd-btn hd-btn--ghost" data-act="dtasks" data-id="' + esc(d.no) + '">Show tasks</button>' : '') +
+        (d.src ? '' : '<button type="button" class="hd-btn hd-btn--ghost" data-act="dpdfdl" data-id="' + esc(d.no) + '">Download PDF</button>') +
+        (d.src ? '<button type="button" class="hd-btn" data-act="dpdf">Open in PDF Creator</button>'
+               : '<button type="button" class="hd-btn" data-act="dwf">' + (d.wf ? 'View workflow' : 'Assign workflow') + '</button>') +
+      '</div>';
+    if (!dlg.open) dlg.showModal();
+    var x = dlg.querySelector('.hd-x'); if (x) x.focus();
+  }
+
+  // =========================================================
+  // Higherd AI: suggested questions, answered from the demo state
+  // =========================================================
+  var AI_Q = {
+    1: ['What needs my attention today?', 'How far along is the package?', 'Which documents have no workflow?'],
+    2: ['Which document should I use as source?', 'What happens to the source file?', 'Which documents have no workflow?'],
+    3: ['Is the mapping complete?', 'How do rail and DEGES layouts differ?', 'Can I download the PDF?', 'What do I do after creating?'],
+    4: ['Which workflow fits the road documents?', 'Who is responsible in each phase?', 'Is any task unassigned?'],
+    5: ['Who needs to act next?', 'Is anything overdue?', 'What happens if I return a task?']
+  };
+
+  function currentStep() {
+    for (var n = 1; n <= 5; n++) { var p = document.getElementById('flow-' + n); if (p && !p.hidden) return n; }
+    return 1;
+  }
+  function list(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a.join(''); }
+  function dueKey(t) { return t.due.split('.').reverse().join(''); }
+
+  function aiAnswer(q) {
+    var ql = q.toLowerCase(), open = openTasks(), all = docs(), c = pkgCounts();
+    var noWf = all.filter(function (d) { return !d.wf; });
+    var byDue = open.slice().sort(function (a, b) { return dueKey(a).localeCompare(dueKey(b)); });
+    var b, un;
+    if (/attention|today/.test(ql)) {
+      if (!open.length) return 'Nothing is waiting for you. All workflow tasks are handled.';
+      return 'You have ' + open.length + ' open task' + (open.length === 1 ? '' : 's') + '. The first is due ' + byDue[0].due + ': ' + byDue[0].desc + ' (' + byDue[0].no + ').' +
+        (c.ret ? ' ' + c.ret + ' document' + (c.ret === 1 ? ' has' : 's have') + ' a returned task.' : '') +
+        (S.created ? '' : ' The rail and road target documents are not created yet: open PDF Creator in step 03.');
+    }
+    if (/far along|progress|package/.test(ql)) {
+      var pct = Math.round((c.prog + c.done) / all.length * 100);
+      return pct + '% of the ' + all.length + ' files are in a workflow or completed (' + c.done + ' completed, ' + c.prog + ' in progress, ' + c.coord + (c.coord === 1 ? ' needs' : ' need') + ' coordination' + (c.ret ? ', ' + c.ret + ' returned' : '') + ').' +
+        (S.created ? ' Both submission packages exist.' : ' The two submission packages appear once you create the target documents.');
+    }
+    if (/no workflow|without/.test(ql)) {
+      if (!noWf.length) return 'Every document is in a workflow.';
+      return noWf.length + ' document' + (noWf.length === 1 ? ' has' : 's have') + ' no workflow: ' + list(noWf.map(function (d) { return d.no; })) + '.' +
+        (noWf.some(function (d) { return !d.src; }) ? ' Assign the new ones in step 04.' : '');
+    }
+    if (/pdf|download|export|print/.test(ql)) {
+      return 'Yes. In PDF Creator, Create PDF downloads the selected template (' + TEMPLATES.filter(function (t) { return t[0] === S.map.tpl; })[0][1] + ') with your mapped values. Export downloads the whole package: a register of the 6 documents, the rail title block and the DEGES cover sheet. Each target document also has Download PDF in its details. The files are made on your device and marked Draft - Demo.';
+    }
+    if (/source/.test(ql) && /which|use/.test(ql)) {
+      return 'Use ' + S.source + ' / A' + (S.source === 'S21-BSW-ÜP-001'
+        ? ', the overview drawing: it carries the project name, numbers and author that both client layouts need.'
+        : '. For the full project data, S21-BSW-ÜP-001 (the overview drawing) carries the most.');
+    }
+    if (/source file|happens to the source|unchanged/.test(ql)) {
+      return 'Nothing. ' + S.source + ' keeps revision A and its ID. PDF Creator writes new target documents and links each one back to that source revision and the template version.';
+    }
+    if (/mapping|complete|check/.test(ql)) {
+      var bad = checks().filter(function (x) { return x[0] === false; });
+      if (bad.length) return 'Not yet: ' + list(bad.map(function (x) { return x[1].toLowerCase(); })) + '. Fix it in the Field mapping panel.';
+      return 'Yes. All 4 fields are filled and the numbers follow the project pattern' + (S.mapped ? ', and the mapping is applied.' : '. Press Apply mapping to confirm it.') +
+        ' The technical review stays with the assigned roles.';
+    }
+    if (/rail|deges|differ|layout/.test(ql)) {
+      return 'Same data, different layouts. Rail uses the client title block with signature fields for each preparation step. DEGES uses its own project template with a cover sheet and index 01 instead of A. Both carry ' + S.map.dno + '.';
+    }
+    if (/after creat|what do i do/.test(ql)) {
+      if (!S.created) return 'First create the documents (Create documents, bottom right). Then select a workflow for the rail and the road package in step 04.';
+      if (!(S.assigned.rail && S.assigned.road)) return 'Assign the workflows in step 04: rail to WF-B01, road to WF-S02. Until then the new documents count as "Coordination needed".';
+      return 'You are done here. Both packages are in review; follow the tasks in step 05.';
+    }
+    if (/road|which workflow|fits/.test(ql)) {
+      return S.assigned.road ? 'The road documents already run in WF-S02 (Road / DEGES document review).'
+        : 'WF-S02, the DEGES document review template. It has the same four phases as the rail workflow, so the reviewers see a familiar route. Use "Use template" under Active workflows.';
+    }
+    if (/responsible|who is|phase/.test(ql)) {
+      b = curBoard();
+      return 'In ' + S.wf + ': ' + PHASES.map(function (p) {
+        var r = [];
+        b.filter(function (t) { return t.ph === p.k; }).forEach(function (t) { if (r.indexOf(t.role) === -1) r.push(t.role); });
+        return p.t + ': ' + (r.length ? list(r) : 'no tasks yet');
+      }).join('. ') + '.';
+    }
+    if (/unassigned/.test(ql)) {
+      un = curBoard().filter(function (t) { return t.person === 'Unassigned'; });
+      if (!un.length) return 'No. Every task in ' + S.wf + ' has a named person.';
+      return un.length + ' task' + (un.length === 1 ? '' : 's') + ' in ' + S.wf + ' only have a role, no person: ' + list(un.slice(0, 4).map(function (t) { return t.t; })) +
+        (un.length > 4 ? ' and more' : '') + '. Open the task menu (⋯) and choose Assign roles.';
+    }
+    if (/act next|who needs|next/.test(ql)) {
+      if (!byDue.length) return 'No one: all tasks are completed.';
+      return byDue.slice(0, 3).map(function (t) { return t.due + ': ' + t.desc + ' (' + t.wf + ', ' + t.no + ')'; }).join('. ') + '.';
+    }
+    if (/overdue|late/.test(ql)) {
+      return 'Nothing is overdue on ' + TODAY + '. ' + (byDue.length ? 'The next deadline is ' + byDue[0].due + ': ' + byDue[0].desc + '.' : 'There are no open tasks.');
+    }
+    if (/return/.test(ql)) {
+      return 'The task goes back to the previous role, and the document shows "Task returned" on My overview. Reopen it when the issue is solved.';
+    }
+    return 'In this demo Higherd AI answers questions about this project: tasks, documents, workflows and the mapping. Try one of the suggestions below.';
+  }
+
+  var aiLog = [];
+
+  function aiPanel() {
+    var p = $('#hd-ai');
+    if (p) return p;
+    p = document.createElement('aside');
+    p.id = 'hd-ai';
+    p.className = 'hd hd-ai';
+    p.setAttribute('aria-label', 'Higherd AI');
+    p.hidden = true;
+    document.body.appendChild(p);
+    p.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-q], [data-act]');
+      if (!b) return;
+      if (b.getAttribute('data-act') === 'aiclose') { closeAI(); return; }
+      if (b.hasAttribute('data-q')) ask(b.getAttribute('data-q'));
+    });
+    p.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var i = p.querySelector('input'), v = i.value.trim();
+      if (v) ask(v);
+    });
+    p.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); closeAI(); } });
+    return p;
+  }
+
+  function closeAI() {
+    var p = $('#hd-ai'); if (p) p.hidden = true;
+    var o = $('#hd-' + currentStep() + ' [data-act="ai"]'); if (o) o.focus({ preventScroll: true });
+  }
+
+  function renderAI(typing) {
+    var p = aiPanel(), step = currentStep();
+    p.innerHTML =
+      '<div class="hd-ai__h">' + svg('spark') + '<p><b>Higherd AI</b><small>Answers from this demo project</small></p>' +
+        '<button type="button" class="hd-x" data-act="aiclose" aria-label="Close Higherd AI">×</button></div>' +
+      '<div class="hd-ai__log" aria-live="polite">' +
+        (aiLog.length ? '' : '<p class="hd-ai__hello">Hi Gerda. Ask me about this screen.</p>') +
+        aiLog.map(function (m) { return '<p class="hd-ai__m hd-ai__m--' + m.who + '">' + esc(m.t) + '</p>'; }).join('') +
+        (typing ? '<p class="hd-ai__m hd-ai__m--ai hd-ai__typing" aria-label="Higherd AI is typing"><i></i><i></i><i></i></p>' : '') +
+      '</div>' +
+      '<div class="hd-ai__q">' + AI_Q[step].map(function (q) { return '<button type="button" data-q="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') + '</div>' +
+      '<form class="hd-ai__f"><label class="hd-sr" for="hd-ai-in">Ask Higherd AI</label><input id="hd-ai-in" type="text" placeholder="Ask Higherd AI…" autocomplete="off"><button type="submit" class="hd-btn hd-btn--sm">Ask</button></form>';
+    var log = p.querySelector('.hd-ai__log');
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function ask(q) {
+    aiLog.push({ who: 'me', t: q });
+    renderAI(true);
+    setTimeout(function () {
+      aiLog.push({ who: 'ai', t: aiAnswer(q) });
+      renderAI(false);
+      var i = $('#hd-ai-in'); if (i) i.focus({ preventScroll: true });
+    }, 650);
+  }
+
+  function openAI(q) {
+    var p = aiPanel();
+    p.hidden = false;
+    renderAI(false);
+    if (q) ask(q);
+    var i = p.querySelector('input'); if (i && !q) i.focus({ preventScroll: true });
+  }
+
 
   function createDocs() {
     if (S.created) return;
@@ -779,20 +1299,35 @@
       case 'reset':
         if (!confirm('Reset the demo to the sample data?')) return;
         try { localStorage.removeItem(KEY); } catch (err) { /* ignore */ }
-        S = defaults(); touched = {}; renderAll(); return;
+        S = defaults(); touched = {}; aiLog = []; bellOpen = 0; closeDialog(); renderAll(); return;
+      case 'ai': openAI(); return;
+      case 'bell':
+        var bs = Number(val);
+        bellOpen = bellOpen === bs ? 0 : bs;
+        if (bellOpen) { S.seen = S.log.length; save(); }
+        RENDER[bs](); focusAfter('#hd-' + bs + ' [data-act="bell"]'); return;
+      case 'clearlog': var cs = bellOpen || 1; S.log = []; S.seen = 0; save(); RENDER[cs](); return;
+      case 'sort':
+        var sp = val.split(':'), cur = S.sort[sp[0]];
+        S.sort[sp[0]] = cur[0] === sp[1] ? (cur[1] > 0 ? [sp[1], -1] : ['', 1]) : [sp[1], 1];
+        save(); if (sp[0] === 'files') renderFiles(); else renderTasks();
+        focusAfter('[data-act="sort"][data-v="' + val + '"]'); return;
+      case 'doc': openDoc(id); return;
       case 'period': S.period = val; save(); render1(); pulse(); return;
       case 'finddoc': S.q = id; S.show = 'all'; save(); render2(); goTo(2); return;
       case 'pdf': S.pview = 'mapping'; save(); render3(); goTo(3); return;
       case 'ptool':
-        if (val === 'tool') { toast(b.getAttribute('data-l') + ' opens in the full product. This demo covers mapping, compare and check.'); return; }
-        if (val === 'create') { createDocs(); return; }
+        if (val === 'tool') { toast(b.getAttribute('data-l') + ' opens in the full product. This demo covers mapping, compare and check.', true); return; }
+        if (val === 'create') { makePdf('single'); return; }
+        if (val === 'export') { makePdf('package'); return; }
         if (val === 'wf') { goTo(4); return; }
         S.pview = val; save(); render3(); focusAfter('#hd-3 .b-tool.is-on'); return;
       case 'create': createDocs(); return;
+      case 'pdfpkg': makePdf('package'); return;
       case 'wview': S.wview = val; S.menu = ''; S.edit = ''; save(); render4(); focusAfter('#hd-4 .b-tab.is-on'); return;
       case 'assignwf': assignWf(val); return;
       case 'openwf':
-        if (!S.boards[id]) { toast('Only workflows can be opened in the editor'); return; }
+        if (!S.boards[id]) { toast('Only workflows can be opened in the editor', true); return; }
         S.wf = id; S.wview = 'editor'; S.menu = ''; S.edit = ''; save(); render4(); scrollToApp(4); return;
       case 'newwf':
         var nid = 'WF-S0' + S.draftN++;
@@ -815,7 +1350,7 @@
         return;
       case 'delwf':
         var dr = libRow(id);
-        if (dr && dr.st === 'Active') { toast(id + ' is active and cannot be deleted'); return; }
+        if (dr && dr.st === 'Active') { toast(id + ' is active and cannot be deleted', true); return; }
         if (!confirm('Delete ' + id + ' from the library?')) return;
         S.lib = S.lib.filter(function (r) { return r.id !== id; });
         if (S.boards[id]) delete S.boards[id];
@@ -840,7 +1375,7 @@
         if (p < 0 || p >= PHASES.length) return;
         t.ph = PHASES[p].k; S.menu = ''; save(); render4(); toast('“' + t.t + '” moved to ' + PHASES[p].t); return;
       case 't-par': t = findTask(id); t.par = !t.par; S.menu = ''; save(); render4(); toast(t.par ? 'Parallel review on for “' + t.t + '”' : 'Parallel review off'); return;
-      case 't-link': S.menu = ''; render4(); toast('Links connect a task to drawings and the project plan in the full product'); return;
+      case 't-link': S.menu = ''; render4(); toast('Links connect a task to drawings and the project plan in the full product', true); return;
       case 't-rm':
         t = findTask(id);
         if (!confirm('Remove “' + t.t + '” from this workflow?')) return;
@@ -900,11 +1435,13 @@
   // Close the task menu with Escape or a click outside
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
+    if (bellOpen) { var bs = bellOpen; bellOpen = 0; RENDER[bs](); focusAfter('#hd-' + bs + ' [data-act="bell"]'); return; }
     if (S.menu) { var id = S.menu; S.menu = ''; render4(); focusAfter('#hd-4 [data-act="menu"][data-id="' + id + '"]'); }
     else if (S.edit) { S.edit = ''; render4(); }
   });
   document.addEventListener('click', function (e) {
     if (S.menu && !e.target.closest('.b-menu, [data-act="menu"]')) { S.menu = ''; render4(); }
+    if (bellOpen && !e.target.closest('.b-bellwrap')) { var bs = bellOpen; bellOpen = 0; RENDER[bs](); }
   });
   // Arrow keys move through the open menu
   document.addEventListener('keydown', function (e) {
@@ -933,5 +1470,44 @@
   host.addEventListener('input', onInput);
   host.addEventListener('change', onChange);
   host.addEventListener('submit', onSubmit);
+
+  // ---------- drag a task to another phase ----------
+  var dragId = '';
+  host.addEventListener('dragstart', function (e) {
+    var li = e.target.closest && e.target.closest('[data-drag]');
+    if (!li) return;
+    dragId = li.getAttribute('data-drag');
+    li.classList.add('is-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', dragId); } catch (err) { /* ignore */ }
+  });
+  host.addEventListener('dragover', function (e) {
+    var col = dragId && e.target.closest('[data-drop]');
+    if (!col) return;
+    e.preventDefault();
+    document.querySelectorAll('#hd-4 .b-col.is-over').forEach(function (c) { if (c !== col) c.classList.remove('is-over'); });
+    col.classList.add('is-over');
+  });
+  host.addEventListener('drop', function (e) {
+    var col = dragId && e.target.closest('[data-drop]');
+    if (!col) return;
+    e.preventDefault();
+    var t = findTask(dragId), ph = col.getAttribute('data-drop');
+    dragId = '';
+    if (!t || t.ph === ph) { render4(); return; }
+    t.ph = ph; S.menu = ''; save(); render4();
+    toast('“' + t.t + '” moved to ' + PHASES[phaseOf(ph)].t);
+  });
+  host.addEventListener('dragend', function () {
+    dragId = '';
+    document.querySelectorAll('#hd-4 .is-over, #hd-4 .is-dragging').forEach(function (n) { n.classList.remove('is-over', 'is-dragging'); });
+  });
+
+  // Keep the assistant's suggestions in step with the visible screen
+  host.addEventListener('click', function (e) {
+    if (e.target.closest('[role="tab"], [data-step], [data-go]')) {
+      setTimeout(function () { var p = $('#hd-ai'); if (p && !p.hidden) renderAI(false); }, 0);
+    }
+  });
   renderAll();
 })();
