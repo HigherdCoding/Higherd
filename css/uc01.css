@@ -1,0 +1,18 @@
+/* =========================================================
+   Higherd – UC01 page additions (on top of uc06.css and uc05.css)
+   ========================================================= */
+
+/* Gallery credit line under the two project images */
+.uc1-credit {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+/* The approved title is longer than UC05's: keep it balanced */
+.uc-hero__title {
+  text-wrap: balance;
+}
